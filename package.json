@@ -1,0 +1,36 @@
+{
+    "name": "mobilepdv",
+    "version": "0.1.0",
+    "description": "KasaFlor PDV",
+    "main": "index.js",
+    "bin": {
+        "mobilepdv": "./index.js"
+    },
+    "private": true,
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/adelbs/mobilePdv.git"
+    },
+    "author": "",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/adelbs/mobilePdv/issues"
+    },
+    "homepage": "https://github.com/adelbs/mobilePdv#readme",
+    "dependencies": {
+        "express": "^4.17.1",
+        "mongoose": "^5.7.5",
+        "open": "^7.0.0",
+        "serve-static": "^1.14.1"
+    },
+    "pkg": {
+        "scripts": "**/*.js",
+        "assets": [
+            "./www/**/*",
+            "./sslcert/**/*"
+        ]
+    }
+}

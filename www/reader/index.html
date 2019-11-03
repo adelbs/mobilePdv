@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <meta charset="ISO-8859-1">
+    <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+
+    <meta name="author" content="Obi1, contato@obi1.com.br">
+    <meta name="copyright" content="Obi1">
+    <meta name="description" content="Mobile ERP - Administração">
+    <meta name="viewport"
+        content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, shrink-to-fit=no">
+
+    <link rel="shortcut icon" type="image/png" href="../favicon.ico" />
+    <link rel="stylesheet" href="../css/bootstrap.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+
+    <title>KasaFlor - Reader</title>
+
+    <style>
+        canvas {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="readerApp">
+        <div class="container-fluid loading position-absolute bg-white h-100 pt-5"
+            style="opacity: 0.5; top: 0; z-index: 6000;" v-if="loading">
+            <div class="d-flex justify-content-center text-info pt-5">
+                <div class="spinner-border" role="status" style="width: 4rem; height: 4rem;"></div>
+            </div>
+        </div>
+
+        <div class="container text-center pt-3">
+            <img src="../img/logo.png">
+        </div>
+
+        <div class="reader container-fluid p-0"></div>
+
+        <div class="container pt-3" v-if="currentScreen == 'orderList'">
+            <table class="table text-left">
+                <thead>
+                    <tr>
+                        <th scope="col">Código</th>
+                        <th scope="col">Cliente</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="(order, index) in orderList" v-on:click="addItem(order._id)">
+                        <th>{{ order.codOrder }}</th>
+                        <th>{{ order.customer.name }}</th>
+                    </tr>
+                    <tr v-if="orderList.length == 0">
+                        <th colspan="2" style="cursor: default;" class="text-center">Não há pedidos abertos</th>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="container pt-3" v-if="currentScreen == 'consultResult'">
+            <table class="table text-left">
+                <tbody>
+                    <tr>
+                        <th scope="col" class="font-weight-bold">Código</th>
+                        <th>{{ consultProduct.codProduct }}</th>
+                    </tr>
+                    <tr>
+                        <th scope="col" class="font-weight-bold">Categoria</th>
+                        <th>{{ consultProduct.category }}</th>
+                    </tr>
+                    <tr>
+                        <th scope="col" class="font-weight-bold">Produto</th>
+                        <th>{{ consultProduct.name }}</th>
+                    </tr>
+                    <tr>
+                        <th scope="col" class="font-weight-bold">Valor</th>
+                        <th>{{ strCurrency(consultProduct.value, true) }}</th>
+                    </tr>
+                    <tr>
+                        <th scope="col" class="font-weight-bold">Qtd. Disp.</th>
+                        <th>{{ consultProduct.productItems.length }}</th>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="container text-center" v-if="currentScreen == 'consultResult'">
+            <br><br>
+            <button type="button" class="btn btn-lg btn-primary" v-on:click="navigate('orderList')" v-if="consultProduct.codProduct > -1">
+                Adicionar ao Pedido
+            </button>
+        </div>
+
+        <div class="container text-center" v-if="currentScreen != 'consult'">
+            <br><br>
+            <button type="button" class="btn btn-lg btn-secondary" v-on:click="navigate('consult')">Voltar</button>
+        </div>
+    </div>
+
+    <script src="../js/jquery-3.4.1.min.js"></script>
+    <script src="../js/popper.min.js"></script>
+    <script src="../js/bootstrap.min.js"></script>
+    <script src="../js/vue.min.js"></script>
+    <script src="../js/quagga.min.js"></script>
+    <script type="text/javascript" src="../js/util.js"></script>
+    <script type="text/javascript" src="reader.js"></script>
+</body>
+
+</html>

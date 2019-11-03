@@ -1,0 +1,10 @@
+{
+    "httpPort": 8080,
+    "httpsPort": 8443,
+    "openHttp": false,
+    "openHttps": false,
+    "database": "mongodb://localhost/mobilepdv",
+    "log": {
+        "level": "info"
+    }
+}

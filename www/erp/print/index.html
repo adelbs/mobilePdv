@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <meta charset="ISO-8859-1">
+    <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+
+    <meta name="author" content="Obi1, contato@obi1.com.br">
+    <meta name="copyright" content="Obi1">
+    <meta name="description" content="Mobile ERP - Administração">
+    <meta name="viewport"
+        content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, shrink-to-fit=no">
+
+    <link rel="shortcut icon" type="image/png" href="../../favicon.ico" />
+    <link rel="stylesheet" href="../../css/bootstrap.min.css">
+    <link rel="stylesheet" href="../../css/style.css">
+
+    <title>KasaFlor - Products</title>
+
+</head>
+
+<body>
+
+    <div id="barcodeApp">
+
+        <img class="barcode" v-for="product in products"
+            v-bind:jsbarcode-value="product.codProduct"
+            jsbarcode-format="code128"
+            jsbarcode-height="50"
+            jsbarcode-fontSize="12"
+            v-bind:jsbarcode-text="product.name"/>
+
+    </div>
+
+    <script src="../../js/jquery-3.4.1.min.js"></script>
+    <script src="../../js/popper.min.js"></script>
+    <script src="../../js/bootstrap.min.js"></script>
+    <script src="../../js/vue.min.js"></script>
+    <script src="../../js/JsBarcode.all.min.js"></script>
+    <script type="text/javascript" src="../../js/util.js"></script>
+    <script type="text/javascript" src="print.js"></script>
+</body>
+
+</html>
