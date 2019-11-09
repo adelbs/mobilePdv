@@ -1,0 +1,215 @@
+<div>
+    <form id="itemForm" @submit.prevent="saveItem" autocomplete="off">
+
+        <div class="modal fade" id="addItemModal" tabindex="-1" role="dialog" aria-labelledby="addItemModalTitle"
+            aria-hidden="true" data-keyboard="false" data-backdrop="static">
+            <div class="modal-dialog modal-dialog-scrollable" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addItemModalTitle">
+                            Adicionar Itens no Estoque
+                        </h5>
+                    </div>
+                    <div class="modal-body row">
+                        <label class="col text-right" for="qtdItensAdd">Quantos itens deseja adicionar:</label>
+                        <input id="qtdItensAdd" type="text" class="form-control form-control-sm col-sm-3"
+                            v-model="itemsAdd">
+                        <div class="col-sm-2"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary"
+                            onclick="$('#addItemModal').modal('hide')">Cancelar</button>
+                        <button type="button" class="btn btn-primary" onclick="addItems()">Adicionar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="moveItemsModal" tabindex="-1" role="dialog" aria-labelledby="moveItemsModalTitle"
+            aria-hidden="true" data-keyboard="false" data-backdrop="static">
+            <div class="modal-dialog modal-dialog-scrollable" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="moveItemsModalTitle">
+                            Mover Itens
+                        </h5>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row mb-2">
+                            <div class="col-sm-2"></div>
+                            <select class="col form-control form-control-sm" v-model="itemsMoveTo">
+                                <option value="SHELF">Mover do Estoque para o Expositor</option>
+                                <option value="STORAGE">Mover do Expositor para o Estoque</option>
+                            </select>
+                            <div class="col-sm-2"></div>
+                        </div>
+                        <div class="row">
+                            <label class="col text-right" for="qtdItensMove">Quantos itens deseja mover:</label>
+                            <input id="qtdItensMove" type="text" class="form-control form-control-sm col-sm-3"
+                                v-model="itemsMove">
+                            <div class="col-sm-2"></div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary"
+                            onclick="$('#moveItemsModal').modal('hide')">Cancelar</button>
+                        <button type="button" class="btn btn-primary" @click="moveItems($data)">Mover</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container-fluid itemEdit pt-3">
+            <div class="row">
+                <div class="col">
+                    <div class="row h4 pt-2 pl-3" v-if="currentItem._id">
+                        {{currentItem.name}}
+                    </div>
+                    <div class="row h4 pt-2 pl-3" v-if="!currentItem._id">
+                        Novo Produto
+                    </div>
+                    <hr>
+                    <div class="form-group row pt-2">
+                        <label class="col-sm-3" for="codProd">Código</label>
+                        <input id="codProd" type="text" class="form-control form-control-sm col-sm-3" readonly
+                            v-model="currentItem.codProduct">
+                        <div class="col ml-3">
+                            <input id="inactive" type="checkbox" class="form-check-input"
+                                v-model="currentItem.isInactive">
+                            <label class="form-check-label" for="inactive">Inativo</label>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-3" for="dtCreate">Data Cadastro</label>
+                        <input id="dtCreate" type="text" class="form-control form-control-sm col-sm-3" readonly
+                            v-model="currentItem.strDtCreate">
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-3" for="name">Nome</label>
+                        <input id="name" type="text" class="form-control form-control-sm col-sm-8" placeholder="Nome"
+                            required v-model="currentItem.name">
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-3" for="desc">Descrição</label>
+                        <textarea id="desc" class="form-control form-control-sm col-sm-8" placeholder="Descrição"
+                            v-model="currentItem.desc"></textarea>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-3" for="category">Categoria</label>
+                        <select id="category" class="form-control form-control-sm col-sm-8" required
+                            v-model="currentItem.codCategory">
+                            <option v-for="category in categories" v-bind:value="category.codCategory">{{category.name}}
+                            </option>
+                        </select>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-3" for="value">Valor</label>
+                        <input id="value" type="text" class="form-control form-control-sm col-sm-2 maskCurrency"
+                            placeholder="R$ 0,00" required v-model.lazy="currentItem.value" v-money="money">
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-3" for="value">Código de Barras</label>
+                        <div class="col-sm-3" v-html="barcodeImg"></div>
+                    </div>
+                </div>
+
+                <div class="col">
+                    <div class="row h4 pt-2 pl-3">
+                        Itens
+                    </div>
+                    <div class="row pt-2 pl-3 pr-3 overflow-auto" style="height: 65vh;">
+                        <table class="table table-sm">
+                            <tbody>
+                                <tr>
+                                    <th scope="col" style="cursor: default;">Em estoque</th>
+                                    <th style="cursor: default;">{{countItems(currentItem.productItem, 'STORAGE')}}</th>
+                                </tr>
+                                <tr>
+                                    <th scope="col" style="cursor: default;">No expositor</th>
+                                    <th style="cursor: default;">{{countItems(currentItem.productItem, 'SHELF')}}</th>
+                                </tr>
+                                <tr>
+                                    <th scope="col" style="cursor: default;">Reservados</th>
+                                    <th style="cursor: default;">{{countItems(currentItem.productItem, 'RESERVED')}}
+                                    </th>
+                                </tr>
+                                <tr>
+                                    <th scope="col" style="cursor: default;">Vendidos</th>
+                                    <th style="cursor: default;">{{countItems(currentItem.productItem, 'SOLD')}}</th>
+                                </tr>
+                                <tr>
+                                    <th scope="col" style="cursor: default;">Cancelados</th>
+                                    <th style="cursor: default;">{{countItems(currentItem.productItem, 'CANCELED')}}
+                                    </th>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="container-fluid listItems">
+            <div class="m-3 mb-4">
+                <img src="../img/icon/product.png" width="40" class="align-middle">
+                <span class="align-middle h2 font-italic text-secondary">&nbsp;&nbsp;Produtos</span>
+            </div>
+            <div class="container">
+                <table class="table table-sm table-hover">
+                    <thead>
+                        <tr>
+                            <th scope="col">Código</th>
+                            <th scope="col">Produto</th>
+                            <th scope="col">Est.</th>
+                            <th scope="col">Exp.</th>
+                            <th scope="col">Res.</th>
+                            <th scope="col">Ven.</th>
+                            <th scope="col">Can.</th>
+                            <th scope="col">Valor</th>
+                            <th scope="col">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="item in items" v-on:click="editItem(true, item._id)">
+                            <th>{{ item.codProduct }}</th>
+                            <th>{{ item.name }}</th>
+                            <th>{{countItems(item.productItem, 'STORAGE')}}</th>
+                            <th>{{countItems(item.productItem, 'SHELF')}}</th>
+                            <th>{{countItems(item.productItem, 'RESERVED')}}</th>
+                            <th>{{countItems(item.productItem, 'SOLD')}}</th>
+                            <th>{{countItems(item.productItem, 'CANCELED')}}</th>
+                            <th>{{ strCurrency(item.value, true) }}</th>
+                            <th>{{ status(item.inactive) }}</th>
+                        </tr>
+                        <tr v-if="items.length == 0">
+                            <th colspan="9" class="text-center" style="cursor: default;">Não há produtos cadastrados.
+                            </th>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="container-fluid fixed-bottom pb-3 text-right">
+            <button type="button" class="btn btn-secondary" @click="editItem(false)" v-if="isEditing">
+                Cancelar
+            </button>
+            <button type="button" class="btn btn-info" onclick="$('#addItemModal').modal()" v-if="isEditing">
+                Adicionar Estoque
+            </button>
+            <button type="button" class="btn btn-info" onclick="$('#moveItemsModal').modal()" v-if="isEditing">
+                Mover Itens
+            </button>
+            <button type="button" class="btn btn-danger" @click="removeItem" v-if="isEditing && currentItem._id">
+                Excluir
+            </button>
+            <button type="submit" class="btn btn-primary" v-if="isEditing">
+                Salvar
+            </button>
+            <button type="button" class="btn btn-info" @click="editItem(true)" v-if="!isEditing">
+                Novo Produto
+            </button>
+        </div>
+    </form>
+</div>

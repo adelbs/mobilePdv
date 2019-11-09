@@ -1,0 +1,37 @@
+<div>
+    <div class="position-absolute" style="margin-left: 50%; transform: translate(-50%, -50%); top: 10%; z-index: 7000;">
+        <div v-for="alert in alerts" class="alert alert-dismissible" role="alert"
+            v-bind:class="{'alert-success': (alert.type == 'success'), 'alert-danger': (alert.type == 'error')}">
+            <strong>{{alert.title}}:</strong> {{alert.text}}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="modal fade" id="alertModal" tabindex="-1" role="dialog" aria-labelledby="alertModalTitle"
+        aria-hidden="true" data-backdrop="static">
+        <div class="modal-dialog modal-dialog-scrollable" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="alertModalTitle">
+                        {{alertMessage.title}}
+                    </h5>
+                </div>
+                <div class="modal-body" v-html="alertMessage.message"></div>
+                <div class="modal-footer">
+                    <div v-if="alertMessage.type == 'CONFIRM'">
+                        <button type="button" class="btn btn-secondary"
+                            onclick="confirmAlertAction(false);$('#alertModal').modal('hide');">Cancelar</button>
+                        <button type="button" class="btn btn-primary"
+                            onclick="confirmAlertAction(true);$('#alertModal').modal('hide');">Ok</button>
+                    </div>
+                    <div v-if="alertMessage.type == 'ALERT'">
+                        <button type="button" class="btn btn-primary"
+                            onclick="confirmAlertAction(true);$('#alertModal').modal('hide');">Ok</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

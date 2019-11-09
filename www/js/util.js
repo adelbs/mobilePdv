@@ -63,9 +63,9 @@ function request(method, url, data) {
     });
 }
 
-function loadTemplate(url) {
+function loadTemplate(component) {
     return new Promise((resolve, reject) => {
-        $.get(`pages/html/${url}.html`)
+        $.get(`/template/${component}.html`)
             .done((data, textStatus) => {
                 resolve(data);
             })
@@ -75,9 +75,16 @@ function loadTemplate(url) {
     });
 }
 
-function loadScript(url) {
+async function loadComponents(components) {
+    let componentArr = {};
+    for (let i = 0; i < components.length; i++)
+        componentArr[components[i]] = await loadComponent(components[i]);
+    return componentArr;
+}
+
+function loadComponent(url) {
     return new Promise((resolve, reject) => {
-        $.getScript(`pages/js/${url}.js`)
+        $.getScript(`js/component/${url}.js`)
             .done((data, textStatus) => {
                 resolve(data);
             })
@@ -90,7 +97,7 @@ function loadScript(url) {
 
 // COMPONENTS *****************************************************************************
 
-function defaultCrudApp(baseUrl, title, data) {
+function defaultCrudApp(componentName, title, data, initItem) {
 
     let appData = { isEditing: false };
     for (let attr in data) appData[attr] = data[attr];
@@ -98,98 +105,98 @@ function defaultCrudApp(baseUrl, title, data) {
     appData.items = [];
     appData.currentItem = {};
 
-    return new Vue({
-        el: '#content',
-        data: appData,
-        methods: {
-            init: async () => {
-                this.contentApp.openEdit(false);
-                await this.contentApp.loadItems();
-                loading(false);
-            },
-            loadItems: async () => {
-                this.contentApp.items = await request('GET', baseUrl);
-            },
-            editItem: async (open, id) => {
-                loading(true);
-
-                if (id != undefined) this.contentApp.currentItem = await request('GET', `${baseUrl}/${id}`);
-                else this.contentApp.currentItem = {};
-
-                // Tratamento checkbox inativo e Dt Create
-                this.contentApp.currentItem.isInactive = (!this.contentApp.currentItem.inactive ? false : true);
-                this.contentApp.currentItem.strDtCreate = strDate(this.contentApp.currentItem.dtCreate);
-
-                this.contentApp.openEdit(open);
-                if (!open) await this.contentApp.loadItems();
-
-                await this.contentApp.initItem();
-
-                loading(false);
-            },
-            initItem: async () => {
-                // Espaço para inicializações especificas
-            },
-            openEdit: async (value) => {
-                this.contentApp.isEditing = value;
-
-                if (value) {
-                    $('.listItems').hide();
-                    $('.itemEdit').show();
-                }
-                else {
-                    $('.listItems').show();
-                    $('.itemEdit').hide();
-                }
-            },
-            saveItem: async (e) => {
-                try {
-                    loading(true);
-                    this.contentApp.openEdit(false);
-
-                    // Tratamento Checkbox Inativo
-                    if (this.contentApp.currentItem.inactive && !this.contentApp.currentItem.isInactive)
-                        this.contentApp.currentItem.inactive = null;
-                    else if (!this.contentApp.currentItem.inactive && this.contentApp.currentItem.isInactive)
-                        this.contentApp.currentItem.inactive = Date.now();
-
-                    delete this.contentApp.currentItem.isInactive;
-                    delete this.contentApp.currentItem.strDtCreate;
-                    // Fim tratamento checkbox inativo
-
-                    const method = (this.contentApp.currentItem._id ? 'PUT' : 'POST');
-                    await request(method, baseUrl, vueObjJson(this.contentApp.currentItem));
-                    await this.contentApp.loadItems();
-
-                    alert(title, 'Item salvo com sucesso', 'success');
-                }
-                catch (err) {
-                    alert('Erro', err.message, 'error');
-                }
-
-                e.preventDefault();
-                e.stopPropagation();
-
-                loading(false);
-            },
-            removeItem: async () => {
-                try {
-                    this.mainApp.showConfirm('Excluir item', 'Tem certeza que deseja excluir?<br>Essa ação não poderá ser desfeita!',
-                        async (v) => {
-                            if (v) {
-                                loading(true);
-                                await request('DELETE', `${baseUrl}/${this.contentApp.currentItem._id}`);
-                                await this.contentApp.loadItems();
-                                alert(title, 'Item removido com sucesso', 'success');
-                                this.contentApp.openEdit(false);
-                                loading(false);
-                            }
-                        });
-                }
-                catch (err) {
-                    alert('Erro', err.message, 'error');
-                }
-            }
-        }
+    return Vue.component(componentName, function (resolve, reject) {
+        loadTemplate(componentName).then(template => {
+            resolve({
+                template: template,
+                data: () => {
+                    return appData;
+                },
+                mounted: async function () {
+                    this.openEdit(false);
+                    await this.loadItems();
+                },
+                methods: {
+                    loadItems: async function () {
+                        this.items = await request('GET', `/api/${componentName}`);
+                    },
+                    editItem: async function (open, id) {
+        
+                        if (id != undefined) this.currentItem = await request('GET', `/api/${componentName}/${id}`);
+                        else this.currentItem = {};
+        
+                        // Tratamento checkbox inativo e Dt Create
+                        this.currentItem.isInactive = (!this.currentItem.inactive ? false : true);
+                        this.currentItem.strDtCreate = strDate(this.currentItem.dtCreate);
+        
+                        this.openEdit(open);
+                        if (!open) await this.loadItems();
+        
+                        await this.initItem();
+        
+                    },
+                    initItem: async function () {
+                        // Espaço para inicializações especificas
+                        if (initItem) await initItem(this.$data);
+                    },
+                    openEdit: async function (value) {
+                        this.isEditing = value;
+        
+                        if (value) {
+                            $('.listItems').hide();
+                            $('.itemEdit').show();
+                        }
+                        else {
+                            $('.listItems').show();
+                            $('.itemEdit').hide();
+                        }
+                    },
+                    saveItem: async function (e) {
+                        try {
+                            this.openEdit(false);
+        
+                            // Tratamento Checkbox Inativo
+                            if (this.currentItem.inactive && !this.currentItem.isInactive)
+                                this.currentItem.inactive = null;
+                            else if (!this.currentItem.inactive && this.currentItem.isInactive)
+                                this.currentItem.inactive = Date.now();
+        
+                            delete this.currentItem.isInactive;
+                            delete this.currentItem.strDtCreate;
+                            // Fim tratamento checkbox inativo
+        
+                            const method = (this.currentItem._id ? 'PUT' : 'POST');
+                            await request(method, `/api/${componentName}`, vueObjJson(this.currentItem));
+                            await this.loadItems();
+        
+                            mainApp.$refs.alertMessage.showAlert(title, 'Item salvo com sucesso', 'success');
+                        }
+                        catch (err) {
+                            mainApp.$refs.alertMessage.showAlert('Erro', err.message, 'error');
+                        }
+        
+                        e.preventDefault();
+                        e.stopPropagation();
+        
+                    },
+                    removeItem: async function () {
+                        try {
+                            mainApp.$refs.alertMessage.showConfirm('Excluir item', 'Tem certeza que deseja excluir?<br>Essa ação não poderá ser desfeita!',
+                                async (v) => {
+                                    if (v) {
+                                        await request('DELETE', `/api/${componentName}/${this.currentItem._id}`);
+                                        await this.loadItems();
+                                        mainApp.$refs.alertMessage.showAlert(title, 'Item removido com sucesso', 'success');
+                                        this.openEdit(false);
+                                    }
+                                });
+                        }
+                        catch (err) {
+                            mainApp.$refs.alertMessage.showAlert('Erro', err.message, 'error');
+                        }
+                    }
+                }        
+            });
+        });
     });
 }

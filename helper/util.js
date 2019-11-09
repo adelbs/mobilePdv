@@ -33,11 +33,14 @@ function ips() {
 
 function config() {
     let configObj = {
-        httpPort: 8080,
-        httpsPort: 8443,
-        openHttp: false,
-        openHttps: true,
-        database: 'mongodb://localhost/mobilepdv',
+        database: {
+            url: 'mongodb://localhost/mobilepdv'
+        },
+        server: {
+            port: 8443,
+            ssl: true,
+            open: false
+        },
         log: {
             level: 'info' //error, info, debug
         }

@@ -1,0 +1,58 @@
+<div>
+    <div class="m-3 mb-4">
+        <img src="../img/icon/productPool.png" width="40" class="align-middle">
+        <span class="align-middle h2 font-italic text-secondary">&nbsp;&nbsp;Gerenciar Estoque</span>
+    </div>
+
+    <div class="container">
+        <form id="filterForm" onsubmit="contentApp.filter(event)" autocomplete="off">
+            <div class="form-group row">
+
+                <label for="codCategory" class="col-1">Categoria</label>
+                <select id="codCategory" class="form-control form-control-sm col-sm-8" v-model="filter.codCategory">
+                    <option value="">Todas</option>
+                    <option v-for="category in categories" v-bind:value="codCategory">
+                        {{category.name}}
+                    </option>
+                </select>
+
+                <label for="codCategory" class="col-1">Status</label>
+                <select id="codCategory" class="form-control form-control-sm col" v-model="filter.status">
+                    <option value="">Todos</option>
+                    <option value="STORAGE">Em estoque</option>
+                    <option value="SHELF">No expositor</option>
+                    <option value="RESERVED">Reservado</option>
+                    <option value="SOLD">Vendido</option>
+                    <option value="CANCELED">Cancelado</option>
+                </select>
+
+            </div>
+        </form>
+
+        <table class="table table-sm table-hover">
+            <thead>
+                <tr>
+                    <th scope="col">Código</th>
+                    <th scope="col">Categoria</th>
+                    <th scope="col">Produto</th>
+                    <th scope="col">Quantidade</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Valor</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="item in items" v-on:click="editItem(true, item._id)">
+                    <th>{{ item.codProduct }}</th>
+                    <th>{{ item.category }}</th>
+                    <th>{{ item.name }}</th>
+                    <th>{{ item.qtd }}</th>
+                    <th>{{ item.status }}</th>
+                    <th>{{ item.value }}</th>
+                </tr>
+                <tr v-if="items.length == 0">
+                    <th colspan="6" class="text-center" style="cursor: default;">Nenhum produto encontrado.</th>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

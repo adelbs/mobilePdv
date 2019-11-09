@@ -1,0 +1,6 @@
+<div>
+
+    <img class="barcode" v-for="product in products" v-bind:jsbarcode-value="product.codProduct"
+        jsbarcode-format="code128" jsbarcode-height="50" jsbarcode-fontSize="12" v-bind:jsbarcode-text="product.name" />
+
+</div>

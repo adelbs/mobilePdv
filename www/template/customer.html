@@ -1,0 +1,101 @@
+<div>
+    <form id="itemForm" @submit.prevent="saveItem" autocomplete="off">
+        <div class="container itemEdit w-50">
+            <div class="row pt-3">
+                <div class="col border rounded-lg">
+                    <div class="row h4 pt-2 pl-3" v-if="currentItem._id">
+                        {{currentItem.name}}
+                    </div>
+                    <div class="row h4 pt-2 pl-3" v-if="!currentItem._id">
+                        Novo Cliente
+                    </div>
+                    <hr>
+                    <div class="form-group row pt-2">
+                        <label class="col-sm-3" for="codCustomer">Código</label>
+                        <input id="codCustomer" type="text" class="form-control form-control-sm col-sm-3" readonly
+                            v-model="currentItem.codCustomer">
+                        <div class="col ml-3">
+                            <input id="inactive" type="checkbox" class="form-check-input"
+                                v-model="currentItem.isInactive">
+                            <label class="form-check-label" for="inactive">Inativo</label>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-3" for="dtCreate">Data Cadastro</label>
+                        <input id="dtCreate" type="text" class="form-control form-control-sm col-sm-3" readonly
+                            v-model="currentItem.strDtCreate">
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-3" for="name">Nome</label>
+                        <input id="name" type="text" class="form-control form-control-sm col-sm-8" placeholder="Nome"
+                            required v-model="currentItem.name">
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-3" for="birthDate">Aniversário</label>
+                        <input id="birthDate" type="text" class="form-control form-control-sm col-sm-8"
+                            v-model="currentItem.dtBirth">
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-3" for="phone">Telefone</label>
+                        <input id="phone" type="number" class="form-control form-control-sm col-sm-8"
+                            v-model="currentItem.phone">
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-3" for="email">Email</label>
+                        <input id="email" type="email" class="form-control form-control-sm col-sm-8"
+                            v-model="currentItem.email">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container-fluid listItems">
+            <div class="m-3 mb-4">
+                <img src="../img/icon/customer.png" width="40" class="align-middle">
+                <span class="align-middle h2 font-italic text-secondary">&nbsp;&nbsp;Clientes</span>
+            </div>
+
+            <div class="container">
+                <table class="table table-sm table-hover">
+                    <thead>
+                        <tr>
+                            <th scope="col">Código</th>
+                            <th scope="col">Nome</th>
+                            <th scope="col">Aniversário</th>
+                            <th scope="col">Email</th>
+                            <th scope="col">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="item in items" v-on:click="editItem(true, item._id)">
+                            <th>{{ item.codCustomer }}</th>
+                            <th>{{ item.name }}</th>
+                            <th>{{ item.dtBirth }}</th>
+                            <th>{{ item.email }}</th>
+                            <th>{{ status(item.inactive) }}</th>
+                        </tr>
+                        <tr v-if="items.length == 0">
+                            <th colspan="5" class="text-center" style="cursor: default;">Não há clientes cadastrados.
+                            </th>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="container-fluid fixed-bottom pb-3 text-right">
+            <button type="button" class="btn btn-secondary" @click="editItem(false)" v-if="isEditing">
+                Cancelar
+            </button>
+            <button type="button" class="btn btn-danger" @click="removeItem" v-if="isEditing && currentItem._id">
+                Excluir
+            </button>
+            <button type="submit" class="btn btn-primary" v-if="isEditing">
+                Salvar
+            </button>
+            <button type="button" class="btn btn-info" @click="editItem(true)" v-if="!isEditing">
+                Novo Cliente
+            </button>
+        </div>
+    </form>
+</div>

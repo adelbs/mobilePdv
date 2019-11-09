@@ -75,11 +75,15 @@ router.delete('/:id', async (req, res) => {
 router.post('/', async (req, res) => {
     try {
         let order = new Salesorder(req.body);
+        let objOrder;
 
         order.codOrder = await next(Salesorder);
-
         order = await order.save();
-        res.send(order.toJSON());
+
+        objOrder = order.toJSON();
+        objOrder.customer = {};
+
+        res.send(objOrder);
     }
     catch (err) {
         log.error(`Error!`, err, req);

@@ -18,59 +18,29 @@
     <link rel="stylesheet" href="css/style.css">
 
     <title>KasaFlor - MobilePDV</title>
-
 </head>
 
 <body>
 
-    <div id="erpApp">
-        <div class="container text-center">
-            <div class="row pt-4">
-                <div class="col">
-                    <img src="img/logo.png">
-                    <div style="font-size: 15px;">v.0.1</div>
-                </div>
-            </div>
-            <div class="row pt-5">
-                <div class="col-sm"></div>
-                <div class="col">
-                    <a href="/erp" class="btn">
-                        <img src="img/icon/erp.png" width="100"><br>
-                        <div class="pt-2">ERP</div>
-                    </a>
-                </div>
-                <div class="col">
-                    <a href="/pdv" class="btn">
-                        <img src="img/icon/pdv.png" width="100">
-                        <div class="pt-2">PDV</div>
-                    </a>
-                </div>
-                <div class="col-sm"></div>
-            </div>
-            <div class="row pt-5">
-                <div class="col-sm"></div>
-                <div class="col">
-                    <a href="/reader" class="btn">
-                        <img src="img/icon/mobile.png" width="100">
-                        <div class="pt-2">Leitor</div>
-                    </a>
-                </div>
-                <div class="col">
-                    <a href="/config" class="btn">
-                        <img src="img/icon/config.png" width="100">
-                        <div class="pt-2">Configurações</div>
-                    </a>
-                </div>
-                <div class="col-sm"></div>
-            </div>
-        </div>
+    <div id="mainApp">
+        <loading :loading="loading"></loading>
+        <alert-message ref="alertMessage"></alert-message>
+        <nav-bar :current="$router.currentRoute.path" v-if="showNavBar"></nav-bar>
+        <router-view></router-view>
     </div>
 
-    <script src="js/jquery-3.4.1.min.js"></script>
-    <script src="js/popper.min.js"></script>
-    <script src="js/bootstrap.min.js"></script>
-    <script src="js/vue.min.js"></script>
+    <script src="js/third/jquery-3.4.1.min.js"></script>
+    <script src="js/third/popper.min.js"></script>
+    <script src="js/third/bootstrap.min.js"></script>
+    <script src="js/third/vue.min.js"></script>
+    <script src="js/third/vue-router.js"></script>
+    <script src="js/third/v-money.js"></script>
+    <script src="js/third/JsBarcode.all.min.js"></script>
+    <script src="js/third/gauge.min.js"></script>
+    <script src="js/third/Chart.bundle.min.js"></script>
+    <script src="js/third/quagga.min.js"></script>
     <script type="text/javascript" src="js/util.js"></script>
+    <script type="text/javascript" src="js/index.js"></script>
 </body>
 
 </html>
