@@ -195,6 +195,16 @@ function defaultCrudApp(componentName, title, data, initItem) {
                             mainApp.$refs.alertMessage.showAlert('Erro', err.message, 'error');
                         }
                     }
+                },
+                watch: {
+                    $route (to, from) {
+                        if (this.$route.params.id != '0') {
+                            this.editItem(true, this.$route.params.id);
+                        }
+                        else {
+                            this.openEdit(false);
+                        }
+                    }
                 }        
             });
         });

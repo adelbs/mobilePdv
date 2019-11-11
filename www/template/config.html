@@ -1,90 +1,84 @@
-<form id="itemForm" onsubmit="contentApp.saveItem(event)" autocomplete="off">
-    <div class="container w-50">
-        <div class="row">
-            <div class="col border rounded-lg">
-                <div class="row h4 pt-2 pl-3" v-if="!currentItem._id">
-                    <img src="../img/icon/config.png" width="40" class="align-middle">
-                    <span class="align-middle h2 font-italic text-secondary">&nbsp;&nbsp;Configurações</span>
-                </div>
-
-                <nav>
-                    <div class="nav nav-tabs mb-3" id="nav-tab" role="tablist">
-                        <a class="nav-item nav-link active" id="nav-pedidos-tab" data-toggle="tab" href="#nav-pedidos"
-                            role="tab" aria-controls="nav-pedidos" aria-selected="true">Pedidos</a>
-                        <a class="nav-item nav-link" id="nav-vendas-tab" data-toggle="tab" href="#nav-vendas" role="tab"
-                            aria-controls="nav-vendas" aria-selected="false">Vendas</a>
-                        <a class="nav-item nav-link" id="nav-sistema-tab" data-toggle="tab" href="#nav-sistema"
-                            role="tab" aria-controls="nav-sistema" aria-selected="false">Sistema</a>
-                    </div>
-                </nav>
-                <div class="tab-content" id="nav-tabContent">
-                    <div class="tab-pane fade show active" id="nav-pedidos" role="tabpanel"
-                        aria-labelledby="nav-pedidos-tab">
-
-                        <div class="form-group row pt-2 pr-2">
-                            <label class="col-sm-4" for="codCategory">Ao cancelar pedido</label>
-                            <select id="category" class="form-control form-control-sm col" required>
-                                <option value="">Itens voltam para o Estoque</option>
-                                <option value="">Itens voltam para o Expositor</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group row pt-2 pr-2">
-                            <label class="col-sm-4" for="codCategory">Desconto</label>
-                            <select id="category" class="form-control form-control-sm col" required>
-                                <option value="">Permitir desconto</option>
-                                <option value="">Não permitir desconto</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="tab-pane fade" id="nav-vendas" role="tabpanel" aria-labelledby="nav-vendas-tab">
-                        <div class="form-group row pt-2 pr-2">
-                            <label class="col-sm-4" for="codCategory">Meta de vendas</label>
-                            <input type="text" class="form-control form-control-sm col" required>
-                        </div>
-                    </div>
-
-                    <div class="tab-pane fade" id="nav-sistema" role="tabpanel" aria-labelledby="nav-sistema-tab">
-                        <div class="form-group row pt-2 pr-2">
-                            <label class="col-sm-4" for="codCategory">Porta HTTP</label>
-                            <input type="text" class="form-control form-control-sm col" required>
-                        </div>
-                        <div class="form-group row pt-2 pr-2">
-                            <label class="col-sm-4" for="codCategory">Porta HTTPS</label>
-                            <input type="text" class="form-control form-control-sm col" required>
-                        </div>
-                        <div class="form-group row pt-2 pr-2">
-                            <label class="col-sm-4" for="codCategory">Banco de dados</label>
-                            <input type="text" class="form-control form-control-sm col" required>
-                        </div>
-                        <div class="form-group row pt-2 pr-2">
-                            <label class="col-sm-4" for="codCategory">Log</label>
-                            <select id="category" class="form-control form-control-sm col" required>
-                                <option value="">1 - Error</option>
-                                <option value="">2 - Info</option>
-                                <option value="">3 - Debug</option>
-                            </select>
-                        </div>
-                    </div>
-
-                </div>
-
-                <div class="container-fluid pt-3 pb-3 border-top text-right row">
-
-                    <div class="h6 font-italic text-secondary col" style="font-size: 11px;">
-                        Algumas configurações podem comprometer o funcionamento do sistema.<br>
-                        Para surtir efeito, pode ser necessário reiniciar o sistema.
-                    </div>
-                    <div>
-                        <button type="submit" class="btn btn-primary col">
-                            Salvar
-                        </button>
-                    </div>
-                </div>
-
-            </div>
-        </div>
+<div class="container">
+    <div class="m-3 mb-4">
+        <img src="../img/icon/config.png" width="40" class="align-middle">
+        <span class="align-middle h2 font-italic text-secondary">&nbsp;&nbsp;Configurações</span>
     </div>
 
-</form>
+    <div class="container-fluid">
+        <nav>
+            <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                <a class="nav-item nav-link active" id="nav-pedidos-tab" data-toggle="tab" href="#nav-pedidos"
+                    role="tab" aria-controls="nav-pedidos" aria-selected="true">Pedidos</a>
+                <a class="nav-item nav-link" id="nav-vendas-tab" data-toggle="tab" href="#nav-vendas" role="tab"
+                    aria-controls="nav-vendas" aria-selected="false">Vendas</a>
+                <a class="nav-item nav-link" id="nav-sistema-tab" data-toggle="tab" href="#nav-sistema" role="tab"
+                    aria-controls="nav-sistema" aria-selected="false">Sistema</a>
+            </div>
+        </nav>
+        <div class="tab-content border p-3" id="nav-tabContent">
+            <div class="tab-pane fade show active" id="nav-pedidos" role="tabpanel" aria-labelledby="nav-pedidos-tab">
+
+                <div class="form-group row pt-2 pr-2">
+                    <label class="col-sm-4" for="codCategory">Ao cancelar pedido</label>
+                    <select id="category" class="form-control form-control-sm col" required>
+                        <option value="">Itens voltam para o Estoque</option>
+                        <option value="">Itens voltam para o Expositor</option>
+                    </select>
+                </div>
+
+                <div class="form-group row pt-2 pr-2">
+                    <label class="col-sm-4" for="codCategory">Desconto</label>
+                    <select id="category" class="form-control form-control-sm col" required>
+                        <option value="">Permitir desconto</option>
+                        <option value="">Não permitir desconto</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="nav-vendas" role="tabpanel" aria-labelledby="nav-vendas-tab">
+                <div class="form-group row pt-2 pr-2">
+                    <label class="col-sm-4" for="codCategory">Meta de vendas</label>
+                    <input type="text" class="form-control form-control-sm col" required>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="nav-sistema" role="tabpanel" aria-labelledby="nav-sistema-tab">
+                <div class="form-group row pt-2 pr-2">
+                    <label class="col-sm-4" for="codCategory">Porta HTTP</label>
+                    <input type="text" class="form-control form-control-sm col" required>
+                </div>
+                <div class="form-group row pt-2 pr-2">
+                    <label class="col-sm-4" for="codCategory">Porta HTTPS</label>
+                    <input type="text" class="form-control form-control-sm col" required>
+                </div>
+                <div class="form-group row pt-2 pr-2">
+                    <label class="col-sm-4" for="codCategory">Banco de dados</label>
+                    <input type="text" class="form-control form-control-sm col" required>
+                </div>
+                <div class="form-group row pt-2 pr-2">
+                    <label class="col-sm-4" for="codCategory">Log</label>
+                    <select id="category" class="form-control form-control-sm col" required>
+                        <option value="">1 - Error</option>
+                        <option value="">2 - Info</option>
+                        <option value="">3 - Debug</option>
+                    </select>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="container-fluid pt-3 pb-3 text-right row">
+
+            <div class="h6 font-italic text-secondary col" style="font-size: 11px;">
+                Algumas configurações podem comprometer o funcionamento do sistema.<br>
+                Para surtir efeito, pode ser necessário reiniciar o sistema.
+            </div>
+            <div>
+                <button type="submit" class="btn btn-primary col">
+                    Salvar
+                </button>
+            </div>
+        </div>
+
+    </div>
+</div>

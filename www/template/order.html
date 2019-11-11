@@ -4,4 +4,26 @@
         <span class="align-middle h2 font-italic text-secondary">&nbsp;&nbsp;Pedidos</span>
     </div>
 
+    <div class="container-fluid">
+        <table class="table table-sm table-hover">
+            <thead>
+                <tr>
+                    <th scope="col">Data</th>
+                    <th scope="col">Código</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Valor</th>
+                    <th scope="col">Disconto</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="order in orders.filter(filter)">
+                    <th scope="col">{{strDate(order.dtCreate)}}</th>
+                    <th scope="col">{{order.codOrder}}</th>
+                    <th scope="col">{{orderStatus(order.status)}}</th>
+                    <th scope="col">{{strCurrency(order.totalValue, true)}}</th>
+                    <th scope="col">{{strCurrency(order.discount, true)}}</th>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 </div>

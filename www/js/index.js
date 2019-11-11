@@ -11,6 +11,7 @@ async function init() {
     components = await loadComponents([
         'loading', 'alert-message', 'nav-bar',
         'home-menu', 'dashboard', 'storage', 'order', 'category', 'product', 'customer',
+        'config', 'user',
         'pdv', 'reader',
         'print',
     ]);
@@ -34,7 +35,7 @@ async function init() {
                 // console.log('from '+ from.path +' to '+ to.path);
                 // this.loading = true;
 
-                if (noMenu.indexOf(`,${to.path},`) > -1) {
+                if (noMenu.indexOf(`,${to.path},`) > -1 || to.path.indexOf('/print') > -1) {
                     this.showNavBar = false;
                 }
                 else {

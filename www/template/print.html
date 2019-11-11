@@ -1,6 +1,30 @@
 <div>
 
-    <img class="barcode" v-for="product in products" v-bind:jsbarcode-value="product.codProduct"
-        jsbarcode-format="code128" jsbarcode-height="50" jsbarcode-fontSize="12" v-bind:jsbarcode-text="product.name" />
+    <div class="p-3 h2 font-italic text-secondary">
+        {{ itemsFrom }}
+    </div>
+
+    <div v-if="howMany == 'all'">
+        <div v-for="product in products" class="border-bottom pb-5">
+            <div class="p-3 h5 font-italic text-secondary">
+                {{ product.nameOriginal }}
+            </div>
+            <div>
+                <img v-for="index of product.qtdPrint" class="barcode" 
+                    v-bind:class="{border: border, 'p-2': (space == '1'), 'p-3': (space == '2'), 'p-4': (space == '3')}"
+                    v-bind:jsbarcode-value="product.codProduct"
+                    jsbarcode-format="code128" jsbarcode-height="50" jsbarcode-fontSize="12"
+                    v-bind:jsbarcode-text="product.name" />
+            </div>
+        </div>
+    </div>
+
+    <div v-if="howMany == 'one'">
+        <img v-for="product in products" class="barcode" 
+            v-bind:class="{border: border, 'p-2': (space == '1'), 'p-3': (space == '2'), 'p-4': (space == '3')}"
+            v-bind:jsbarcode-value="product.codProduct"
+            jsbarcode-format="code128" jsbarcode-height="50" jsbarcode-fontSize="12"
+            v-bind:jsbarcode-text="product.name" />
+    </div>
 
 </div>

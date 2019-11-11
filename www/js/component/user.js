@@ -1,2 +1,5 @@
 
-this.contentApp = defaultCrudApp('/user', 'Usuários');
+routes.push({
+    path: '/user/:id',
+    component: defaultCrudApp('user', 'Usuários')
+});

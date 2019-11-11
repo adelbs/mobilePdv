@@ -1,7 +1,7 @@
 
-function addItems() {
-    for (let i = 0; i < this.contentApp.itemsAdd; i++)
-        this.contentApp.currentItem.productItem.push({ place: 'STORAGE' });
+function addItems(data) {
+    for (let i = 0; i < data.itemsAdd; i++)
+        data.currentItem.productItem.push({ place: 'STORAGE' });
 
     $('#addItemModal').modal('hide');
 }
@@ -55,7 +55,7 @@ routes.push({
             jsbarcode-format="code128"
             jsbarcode-height="50"
             jsbarcode-fontSize="12"
-            jsbarcode-text="${data.currentItem.name}" />`;
+            jsbarcode-text="${data.currentItem.name} (${data.currentItem.codProduct})" />`;
 
             setTimeout(() => JsBarcode(".barcode").init(), 1000);
         }

@@ -10,13 +10,20 @@ Vue.component('nav-bar', function (resolve, reject) {
                         { url: '#/storage', text: 'Estoque' },
                         { url: '#/order', text: 'Pedidos' },
                         {
-                            url: '#/cadastros', text: 'Cadastros', submenus: [
+                            url: '#/', text: 'Cadastros', submenus: [
                                 { url: '#/customer', text: 'Clientes' },
                                 {},
                                 { url: '#/category', text: 'Categorias' },
                                 { url: '#/product', text: 'Produtos' },
                             ]
-                        }
+                        },
+                        { 
+                            url: '#/', text: 'Configurações', submenus: [
+                                { url: '#/config', text: 'Sistema' },
+                                {},
+                                { url: '#/user/0', text: 'Usuários' },
+                            ]
+                        },
                     ],
                 }
             },

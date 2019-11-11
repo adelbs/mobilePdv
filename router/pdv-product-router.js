@@ -71,6 +71,7 @@ router.post('/', async (req, res) => {
         let productItem;
 
         product.codProduct = await next(Product);
+        product.value = currencyValue(req.body.value);
 
         let itemList = req.body.productItem;
         if (itemList && itemList.length && itemList.length > 0) {
