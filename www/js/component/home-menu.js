@@ -10,7 +10,7 @@ routes.push({
                             [
                                 {},
                                 { icon: 'img/icon/erp.png', url: '#/dashboard', name: 'ERP' },
-                                { icon: 'img/icon/pdv.png', url: '#/pdv', name: 'PDV' },
+                                { icon: 'img/icon/pdv.png', url: '#/pdv/0', name: 'PDV' },
                                 {},
                             ],
                             [

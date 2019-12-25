@@ -1,21 +1,16 @@
-
 const VERSION = '0.0.1';
 const routes = [];
 let mainApp;
 let components;
 
-const noMenu = ',/,/print,/pdv,/reader,';
-
 async function init() {
 
     components = await loadComponents([
-        'loading', 'alert-message', 'nav-bar',
+        'alert-message', 'modal', 'nav-bar', 'list-table', 'crud-actions', 'crud-form',
         'home-menu', 'dashboard', 'storage', 'order', 'category', 'product', 'customer',
         'config', 'user',
-        'pdv', 'reader',
-        'print',
+        'pdv', 'reader', 'print',
     ]);
-
     // routes.push({ path: '*', template: '<p>não encontrado</p>' });
 
     mainApp = new Vue({
@@ -26,21 +21,14 @@ async function init() {
             showNavBar: false
         },
         mounted: function () {
-            Vue.nextTick(async () => {
-                this.loading = false;
-            });
+            Vue.nextTick(async () => this.loading = false);
         },
         watch: {
-            $route (to, from) {
-                // console.log('from '+ from.path +' to '+ to.path);
-                // this.loading = true;
-
-                if (noMenu.indexOf(`,${to.path},`) > -1 || to.path.indexOf('/print') > -1) {
-                    this.showNavBar = false;
-                }
-                else {
-                    this.showNavBar = true;
-                }
+            $route(to, from) {
+                this.showNavBar = (to.path != '/'
+                    && to.path.indexOf('/reader') == -1
+                    && to.path.indexOf('/print') == -1
+                    && to.path.indexOf('/pdv') == -1);
             }
         }
     });

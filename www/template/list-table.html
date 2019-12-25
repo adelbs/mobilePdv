@@ -1,0 +1,26 @@
+<div>
+    <table class="table table-sm" vue-class="class" v-bind:style="style">
+        <thead>
+            <tr>
+                <th v-for="col in columns" scope="col">{{ col.label }}</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr v-for="item in items.filter(pagination)" @click="open(item)">
+                <th v-for="col in columns" v-html="value(item, col)" vue-class="col.class" v-bind:style="col.style"
+                    @click="colClick(item, col)"></th>
+            </tr>
+            <tr v-if="(!items || items.length == 0) && msgNoRecords">
+                <th :colspan="columns.length" class="text-center" style="cursor: default;">
+                    {{msgNoRecords}}
+                </th>
+            </tr>
+        </tbody>
+    </table>
+    <div class="text-right pt-3" v-if="totalPages > 1">
+        <div class="btn-group mr-2">
+            <button type="button" v-for="page of totalPages" class="btn btn-outline-secondary"
+                :class="{'active': (page == currentPage)}" @click="gotoPage(page)">{{page}}</button>
+        </div>
+    </div>
+</div>

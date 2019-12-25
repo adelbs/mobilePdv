@@ -71,6 +71,7 @@ router.post('/', async (req, res) => {
         let productItem;
 
         product.codProduct = await next(Product);
+        product.cost = currencyValue(req.body.cost);
         product.value = currencyValue(req.body.value);
 
         let itemList = req.body.productItem;
@@ -99,6 +100,7 @@ router.put('/', async (req, res) => {
 
         let bodyObj = req.body;
         delete bodyObj._id;
+        bodyObj.cost = currencyValue(bodyObj.cost);
         bodyObj.value = currencyValue(bodyObj.value);
 
         product = await product.updateOne(bodyObj);

@@ -2,26 +2,32 @@
     <nav class="navbar navbar-expand-sm navbar-dark bg-secondary fixed-top">
         <a class="navbar-brand" href="#/">KasaFlor</a>
 
-        <ul class="navbar-nav mr-auto">
-            <li class="nav-item" v-for="menu in menus"
-                :class="{'active': (currentPath == menu.url), 'dropdown': menu.submenus}">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navBar" aria-controls="navBar"
+            aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
 
-                <a class="nav-link" :href="menu.url" v-if="!menu.submenus">{{menu.text}}</a>
+        <div class="collapse navbar-collapse" id="navBar">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item" v-for="menu in menus"
+                    :class="{'active': (currentPath == menu.url), 'dropdown': menu.submenus}">
 
-                <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true"
-                    aria-expanded="false" v-if="menu.submenus">
-                    {{menu.text}}
-                </a>
+                    <a class="nav-link" :href="menu.url" v-if="!menu.submenus">{{menu.text}}</a>
 
-                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                    <div v-for="submenu in menu.submenus">
-                        <a class="dropdown-item" 
-                            :href="submenu.url" v-if="submenu.url">{{submenu.text}}</a>
-                        <div class="dropdown-divider" v-if="!submenu.url"></div>
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown"
+                        aria-haspopup="true" aria-expanded="false" v-if="menu.submenus">
+                        {{menu.text}}
+                    </a>
+
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <div v-for="submenu in menu.submenus">
+                            <a class="dropdown-item" :href="submenu.url" v-if="submenu.url">{{submenu.text}}</a>
+                            <div class="dropdown-divider" v-if="!submenu.url"></div>
+                        </div>
                     </div>
-                </div>
-            </li>
-        </ul>
+                </li>
+            </ul>
+        </div>
     </nav>
     <div class="pt-3 pb-3">&nbsp;</div>
 </div>

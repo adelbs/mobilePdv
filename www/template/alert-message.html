@@ -14,22 +14,12 @@
         <div class="modal-dialog modal-dialog-scrollable" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="alertModalTitle">
-                        {{alertMessage.title}}
-                    </h5>
+                    <h5 class="modal-title" id="alertModalTitle">{{alertMessage.title}}</h5>
                 </div>
                 <div class="modal-body" v-html="alertMessage.message"></div>
                 <div class="modal-footer">
-                    <div v-if="alertMessage.type == 'CONFIRM'">
-                        <button type="button" class="btn btn-secondary"
-                            onclick="confirmAlertAction(false);$('#alertModal').modal('hide');">Cancelar</button>
-                        <button type="button" class="btn btn-primary"
-                            onclick="confirmAlertAction(true);$('#alertModal').modal('hide');">Ok</button>
-                    </div>
-                    <div v-if="alertMessage.type == 'ALERT'">
-                        <button type="button" class="btn btn-primary"
-                            onclick="confirmAlertAction(true);$('#alertModal').modal('hide');">Ok</button>
-                    </div>
+                    <button v-for="btn in alertMessage.actions" type="button" class="btn" :class="btn.class"
+                        @click="messageAction(btn.action)">{{btn.text}}</button>
                 </div>
             </div>
         </div>

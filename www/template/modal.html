@@ -1,0 +1,15 @@
+<div class="modal fade" :id="id" tabindex="-1" role="dialog" :aria-labelledby="'alertTitle'+ id" aria-hidden="true"
+    data-backdrop="static">
+    <div class="modal-dialog modal-dialog-scrollable" :class="{'modal-lg': fluid}" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" :id="'alertTitle'+ id">{{title}}</h5>
+            </div>
+            <div class="modal-body"><slot></slot></div>
+            <div class="modal-footer">
+                <button v-for="btn in actions" type="button" class="btn" :class="btn.class"
+                    @click="messageAction(btn.action)">{{btn.text}}</button>
+            </div>
+        </div>
+    </div>
+</div>

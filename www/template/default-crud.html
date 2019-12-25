@@ -1,0 +1,42 @@
+<div>
+    <form id="itemForm" @submit.prevent="saveItem" autocomplete="off">
+        <div class="container w-50 pt-3" v-if="$route.params.id != '0'">
+            <div class="row">
+                <div class="col border rounded-lg">
+                    <div class="row h4 pt-2 pl-3" v-if="currentItem.notFound">
+                        {{options.labelNotFound}}
+                    </div>
+                    <div class="row h4 pt-2 pl-3" v-else-if="currentItem._id">
+                        {{currentItem.name}}
+                    </div>
+                    <div class="row h4 pt-2 pl-3" v-else-if="!currentItem._id">
+                        {{options.labelNew}}
+                    </div>
+                    <hr>
+                    <crud-form :fields="crudFields" :item="currentItem" v-if="!currentItem.notFound"></crud-form>
+                </div>
+            </div>
+        </div>
+
+        <div class="container-fluid" v-if="$route.params.id == '0'">
+            <div class="m-3 mb-4">
+                <img :src="'../img/icon/' + options.componentName + '.png'" width="40" class="align-middle">
+                <span class="align-middle h2 font-italic text-secondary">&nbsp;&nbsp;{{options.title}}</span>
+            </div>
+
+            <div class="container">
+                <list-table :items="items" :columns="listTableColumns" :componentName="options.componentName" :class="['table-hover']"
+                    :msgNoRecords="options.msgNoRecords" pageSize="10"></list-table>
+            </div>
+        </div>
+
+        <div class="container-fluid fixed-bottom pb-3 text-right">
+            <crud-actions 
+                :removeFunction="removeItem" 
+                :labelNew="options.labelNew"
+                :componentName="options.componentName"
+                :currentItem="currentItem">
+            </crud-actions>
+        </div>
+    </form>
+</div>

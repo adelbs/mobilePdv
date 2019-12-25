@@ -15,6 +15,7 @@
 
     <link rel="shortcut icon" type="image/png" href="favicon.ico" />
     <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/datepicker.min.css">
     <link rel="stylesheet" href="css/style.css">
 
     <title>KasaFlor - MobilePDV</title>
@@ -23,7 +24,13 @@
 <body>
 
     <div id="mainApp">
-        <loading :loading="loading"></loading>
+        <div v-if="loading" class="container-fluid position-absolute bg-white h-100 pt-5"
+            style="opacity: 0.5; top: 0; z-index: 6000;">
+            <div class="d-flex justify-content-center text-info pt-5">
+                <div class="spinner-border" role="status" style="width: 4rem; height: 4rem;"></div>
+            </div>
+        </div>
+
         <alert-message ref="alertMessage"></alert-message>
         <nav-bar :current="$router.currentRoute.path" v-if="showNavBar"></nav-bar>
         <router-view></router-view>
@@ -35,11 +42,13 @@
     <script src="js/third/vue.min.js"></script>
     <script src="js/third/vue-router.js"></script>
     <script src="js/third/v-money.js"></script>
+    <script src="js/third/datepicker.min.js"></script>
     <script src="js/third/JsBarcode.all.min.js"></script>
     <script src="js/third/gauge.min.js"></script>
     <script src="js/third/Chart.bundle.min.js"></script>
     <script src="js/third/quagga.min.js"></script>
     <script type="text/javascript" src="js/util.js"></script>
+    <script type="text/javascript" src="js/defCrud.js"></script>
     <script type="text/javascript" src="js/index.js"></script>
 </body>
 

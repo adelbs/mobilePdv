@@ -33,7 +33,14 @@ function strCurrency(value, signal) {
         let numberValue = Number(value);
         result = numberValue.toFixed(2);
         result = result.replace('.', ',');
-        if (signal) result = `R$ ${result}`;
+        if (signal) {
+            result = String(result);
+            if (result.length > 6) {
+                result = result.substring(0, result.length - 6) +'.'+ result.substring(result.length - 6, result.length);
+            }
+
+            result = `R$ ${result}`;
+        }
     }
     catch (err) { }
     return result;
@@ -44,6 +51,21 @@ function currencyValue(value) {
     newVal = newVal.replace('.', '');
     newVal = newVal.replace(',', '.');
     return Number(newVal);
+}
+
+function strPaymentType(v) {
+    if (v == 'CASH') return 'Dinheiro';
+    else if (v == 'CREDIT') return 'Cartão de Crédito';
+    else if (v == 'DEBIT') return 'Cartão de Débito';
+    else if (v == 'CHECK') return 'Cheque';
+}
+
+function orderStatus(status) {
+    let result = '';
+    if (status == 'OPEN') result = 'Aberto';
+    else if (status == 'CLOSED') result = 'Fechado';
+    else if (status == 'RETURNED') result = 'Cancelado';
+    return result;
 }
 
 function status(v) {
@@ -94,119 +116,33 @@ function loadComponent(url) {
     });
 }
 
+function routeComponent(componentName, component, isCrud) {
+    let path = `/${componentName}/`;
+    if (isCrud) path = `${path}:id`;
+    routes.push({
+        path: path,
+        component: lazyComponent(componentName, component)
+    });
+}
 
-// COMPONENTS *****************************************************************************
-
-function defaultCrudApp(componentName, title, data, initItem) {
-
-    let appData = { isEditing: false };
-    for (let attr in data) appData[attr] = data[attr];
-
-    appData.items = [];
-    appData.currentItem = {};
-
+function lazyComponent(componentName, component) {
     return Vue.component(componentName, function (resolve, reject) {
         loadTemplate(componentName).then(template => {
-            resolve({
-                template: template,
-                data: () => {
-                    return appData;
-                },
-                mounted: async function () {
-                    this.openEdit(false);
-                    await this.loadItems();
-                },
-                methods: {
-                    loadItems: async function () {
-                        this.items = await request('GET', `/api/${componentName}`);
-                    },
-                    editItem: async function (open, id) {
-        
-                        if (id != undefined) this.currentItem = await request('GET', `/api/${componentName}/${id}`);
-                        else this.currentItem = {};
-        
-                        // Tratamento checkbox inativo e Dt Create
-                        this.currentItem.isInactive = (!this.currentItem.inactive ? false : true);
-                        this.currentItem.strDtCreate = strDate(this.currentItem.dtCreate);
-        
-                        this.openEdit(open);
-                        if (!open) await this.loadItems();
-        
-                        await this.initItem();
-        
-                    },
-                    initItem: async function () {
-                        // Espaço para inicializações especificas
-                        if (initItem) await initItem(this.$data);
-                    },
-                    openEdit: async function (value) {
-                        this.isEditing = value;
-        
-                        if (value) {
-                            $('.listItems').hide();
-                            $('.itemEdit').show();
-                        }
-                        else {
-                            $('.listItems').show();
-                            $('.itemEdit').hide();
-                        }
-                    },
-                    saveItem: async function (e) {
-                        try {
-                            this.openEdit(false);
-        
-                            // Tratamento Checkbox Inativo
-                            if (this.currentItem.inactive && !this.currentItem.isInactive)
-                                this.currentItem.inactive = null;
-                            else if (!this.currentItem.inactive && this.currentItem.isInactive)
-                                this.currentItem.inactive = Date.now();
-        
-                            delete this.currentItem.isInactive;
-                            delete this.currentItem.strDtCreate;
-                            // Fim tratamento checkbox inativo
-        
-                            const method = (this.currentItem._id ? 'PUT' : 'POST');
-                            await request(method, `/api/${componentName}`, vueObjJson(this.currentItem));
-                            await this.loadItems();
-        
-                            mainApp.$refs.alertMessage.showAlert(title, 'Item salvo com sucesso', 'success');
-                        }
-                        catch (err) {
-                            mainApp.$refs.alertMessage.showAlert('Erro', err.message, 'error');
-                        }
-        
-                        e.preventDefault();
-                        e.stopPropagation();
-        
-                    },
-                    removeItem: async function () {
-                        try {
-                            mainApp.$refs.alertMessage.showConfirm('Excluir item', 'Tem certeza que deseja excluir?<br>Essa ação não poderá ser desfeita!',
-                                async (v) => {
-                                    if (v) {
-                                        await request('DELETE', `/api/${componentName}/${this.currentItem._id}`);
-                                        await this.loadItems();
-                                        mainApp.$refs.alertMessage.showAlert(title, 'Item removido com sucesso', 'success');
-                                        this.openEdit(false);
-                                    }
-                                });
-                        }
-                        catch (err) {
-                            mainApp.$refs.alertMessage.showAlert('Erro', err.message, 'error');
-                        }
-                    }
-                },
-                watch: {
-                    $route (to, from) {
-                        if (this.$route.params.id != '0') {
-                            this.editItem(true, this.$route.params.id);
-                        }
-                        else {
-                            this.openEdit(false);
-                        }
-                    }
-                }        
-            });
+            component.template = template;
+            resolve(component);
         });
     });
+}
+
+// Shortcuts *****************************************
+function showMessage(config) {
+    mainApp.$refs.alertMessage.showMessage(config);
+}
+
+function showSimpleMessage(title, message) {
+    mainApp.$refs.alertMessage.showSimpleMessage(title, message);
+}
+
+function showAlert(title, message, type) {
+    mainApp.$refs.alertMessage.showAlert(title, message, type);
 }

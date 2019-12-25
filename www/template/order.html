@@ -4,26 +4,223 @@
         <span class="align-middle h2 font-italic text-secondary">&nbsp;&nbsp;Pedidos</span>
     </div>
 
-    <div class="container-fluid">
+    <div class="container-fluid" v-if="$route.params.id == '0'">
+        <div class="container pb-4 row">
+            <label for="filterFrom" class="col-1 text-right">De:</label>
+            <input id="filterFrom" type="text" class="col-2 form-control form-control-sm" readonly
+                v-model="filterFields.dtFrom">
+            <label for="filterTo" class="col-1 text-right">Até:</label>
+            <input id="filterTo" type="text" class="col-2 form-control form-control-sm" readonly
+                v-model="filterFields.dtTo">
+            <label for="statusFilter" class="col-1 text-right">Status:</label>
+            <select id="statusFilter" class="col-2 form-control form-control-sm" v-model="filterFields.status">
+                <option value="">Todos</option>
+                <option value="OPEN">Abertos</option>
+                <option value="CLOSED">Fechados</option>
+                <option value="RETURNED">Cancelados</option>
+            </select>
+        </div>
+
         <table class="table table-sm table-hover">
             <thead>
                 <tr>
-                    <th scope="col">Data</th>
                     <th scope="col">Código</th>
+                    <th scope="col">Data</th>
                     <th scope="col">Status</th>
                     <th scope="col">Valor</th>
-                    <th scope="col">Disconto</th>
+                    <th scope="col">Desconto</th>
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="order in orders.filter(filter)">
-                    <th scope="col">{{strDate(order.dtCreate)}}</th>
-                    <th scope="col">{{order.codOrder}}</th>
-                    <th scope="col">{{orderStatus(order.status)}}</th>
-                    <th scope="col">{{strCurrency(order.totalValue, true)}}</th>
-                    <th scope="col">{{strCurrency(order.discount, true)}}</th>
+                <tr v-for="item in orders.filter(filter)" @click="window.open('#/order/'+ item._id, '_self');">
+                    <th scope="col">{{item.codOrder}}</th>
+                    <th scope="col">{{strDate(item.dtCreate)}}</th>
+                    <th scope="col">{{orderStatus(item.status)}}</th>
+                    <th scope="col">{{strCurrency(item.totalValue)}}</th>
+                    <th scope="col">{{strCurrency(item.discount)}}</th>
+                </tr>
+                <tr v-if="orders.filter(filter).length == 0">
+                    <th colspan="5" class="text-center" style="cursor: default;">
+                        Nenhum pedido encontrado
+                    </th>
                 </tr>
             </tbody>
         </table>
+
+        <div class="text-right pt-3">
+            <span>
+                Total: {{strCurrency(totalValue(), true)}} ({{totalOrders()}} pedidos)&nbsp;&nbsp;
+            </span>
+            <div class="btn-group mr-2">
+                <button type="button" v-for="page of totalPages" class="btn btn-outline-secondary"
+                    :class="{'active': (page == currentPage)}" @click="gotoPage(page)">{{page}}</button>
+            </div>
+        </div>
+    </div>
+    <div class="container-fluid" v-else>
+        <div class="container">
+            <div class="accordion" id="accordionExample">
+                <div class="card">
+                    <div class="p-2 row">
+                        <div class="col-sm-2 d-none d-sm-block font-weight-bold text-right">Pedido: </div>
+                        <div class="col-4 d-block d-sm-none font-weight-bold">Pedido: </div>
+                        <div class="col"># {{selectedOrder.codOrder}}</div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="p-2 row">
+                        <div class="col-sm-2 d-none d-sm-block font-weight-bold text-right">Data: </div>
+                        <div class="col-4 d-block d-sm-none font-weight-bold">Data: </div>
+                        <div class="col">{{selectedOrder.strDtCreate}}</div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="p-2 row">
+                        <div class="col-sm-2 d-none d-sm-block font-weight-bold text-right">Status: </div>
+                        <div class="col-4 d-block d-sm-none font-weight-bold">Status: </div>
+                        <div class="col"
+                            :class="{'text-success': (selectedOrder.status == 'OPEN'), 'text-info': (selectedOrder.status == 'CLOSED'), 'text-danger': (selectedOrder.status == 'RETURNED')}">
+                            [Pedido {{orderStatus(selectedOrder.status)}}]
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="p-2 row">
+                        <div class="col-sm-2 d-none d-sm-block font-weight-bold text-right">Vendedor: </div>
+                        <div class="col-4 d-block d-sm-none font-weight-bold">Vendedor: </div>
+                        <div class="col" v-if="selectedOrder.user">
+                            <a :href="'#/user/'+ selectedOrder.user._id">
+                                {{selectedOrder.user.name}}
+                            </a>
+                        </div>
+                        <div class="col" v-else>[Não identificado]</div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div id="headingCustomer" class="p-2 row bg-light" style="cursor: pointer;" data-toggle="collapse"
+                        data-target="#collapseCustomer" aria-expanded="true" aria-controls="collapseCustomer">
+                        <div class="col-sm-2 d-none d-sm-block font-weight-bold text-right">Cliente: </div>
+                        <div class="col-sm-2 d-block d-sm-none font-weight-bold">Cliente: </div>
+                        <div class="col" v-if="selectedOrder.customer && selectedOrder.customer._id">
+                            {{selectedOrder.customer.name}}
+                        </div>
+                        <div class="col" v-else>[Não identificado]</div>
+                    </div>
+
+                    <div id="collapseCustomer" class="collapse" aria-labelledby="headingCustomer"
+                        data-parent="#accordionExample">
+                        <div class="card-body">
+                            <div v-if="selectedOrder.customer && selectedOrder.customer._id">
+                                <div class="row pt-2">
+                                    <div class="col-2 font-weight-bold text-right">
+                                        Nome
+                                    </div>
+                                    <div class="col">
+                                        <a :href="'#/customer/'+ selectedOrder.customer._id">
+                                            {{selectedOrder.customer.name}}
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="row pt-2">
+                                    <div class="col-2 font-weight-bold text-right">
+                                        Aniversário
+                                    </div>
+                                    <div class="col">
+                                        {{selectedOrder.customer.birthDate}}
+                                    </div>
+                                </div>
+                                <div class="row pt-2">
+                                    <div class="col-2 font-weight-bold text-right">
+                                        Telefone
+                                    </div>
+                                    <div class="col">
+                                        {{selectedOrder.customer.phone}}
+                                    </div>
+                                </div>
+                                <div class="row pt-2">
+                                    <div class="col-2 font-weight-bold text-right">
+                                        Email
+                                    </div>
+                                    <div class="col">
+                                        {{selectedOrder.customer.email}}
+                                    </div>
+                                </div>
+                            </div>
+                            <div v-else>
+                                Cliente não identificado
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div id="headingItems" class="p-2 row bg-light" style="cursor: pointer;" data-toggle="collapse"
+                        data-target="#collapseItems" aria-expanded="true" aria-controls="collapseItems">
+                        <div class="col-sm-2 d-none d-sm-block font-weight-bold text-right">Total Itens:</div>
+                        <div class="col-4 d-block d-sm-none font-weight-bold">Total Itens:</div>
+                        <div class="col">{{ strCurrency(selectedOrder.totalValue, true) }}</div>
+                    </div>
+                    <div id="collapseItems" class="collapse" aria-labelledby="headingItems"
+                        data-parent="#accordionExample">
+                        <div class="card-body">
+                            <list-table :items="selectedOrder.productItemList" :columns="itemsTableColumns"
+                                msgNoRecords="Não há itens"></list-table>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div id="headingPayments" class="p-2 row bg-light" style="cursor: pointer;" data-toggle="collapse"
+                        data-target="#collapsePayments" aria-expanded="true" aria-controls="collapsePayments">
+                        <div class="col-sm-2 d-none d-sm-block font-weight-bold text-right">Total Pagamentos:</div>
+                        <div class="col-4 d-block d-sm-none font-weight-bold">Tot. Pgtos:</div>
+                        <div class="col">{{ strCurrency(selectedOrder.totalValue - selectedOrder.discount, true) }}
+                        </div>
+                    </div>
+                    <div id="collapsePayments" class="collapse" aria-labelledby="headingPayments"
+                        data-parent="#accordionExample">
+                        <div class="card-body">
+                            <list-table :items="selectedOrder.paymentList" :columns="paymentsTableColumns"
+                                msgNoRecords="Não há pagamentos"></list-table>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="p-2 row">
+                        <div class="col-sm-2 d-none d-sm-block font-weight-bold text-right">Desconto:</div>
+                        <div class="col-4 d-block d-sm-none font-weight-bold">Desconto:</div>
+                        <div class="col">{{ strCurrency(selectedOrder.discount, true) }}</div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="p-2 row">
+                        <div class="col-sm-2 d-none d-sm-block font-weight-bold text-right">Comentários:</div>
+                        <div class="col-sm-2 d-block d-sm-none font-weight-bold">Comentários:</div>
+                        <div class="col">{{selectedOrder.obs}}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <modal id="cancelOrderModal" title="Cancelar Pedido" :actions="cancelOrderModalActions" ref="cancelOrderModal"
+            fluid="true">
+            <div class="row mb-2">
+                <label class="col-4 text-right" for="cancelObs">Motivo do cancelamento:</label>
+                <textarea id="cancelObs" rows="5" class="form-control form-control-sm col-sm-7"
+                    v-model="cancelObs"></textarea>
+                <div class="col-sm"></div>
+            </div>
+            <div class="row">
+                <div class="col text-center">O pedido será cancelado e os itens do pedido retornarão ao estoque.</div>
+            </div>
+            <div class="row">
+                <div class="col text-center font-weight-bold">Atenção: esta ação não poderá ser desfeita!</div>
+            </div>
+        </modal>
+
+        <div class="container-fluid fixed-bottom pb-3 text-right">
+            <button class="btn btn-secondary" @click="window.history.back();">Voltar</button>
+            <button class="btn btn-danger" v-if="selectedOrder.status == 'CLOSED'"
+                @click="$refs.cancelOrderModal.show()">Cancelar
+                Pedido</button>
+        </div>
     </div>
 </div>

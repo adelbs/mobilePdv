@@ -8,6 +8,7 @@ const productSchema = new Schema({
     desc: String,
     inactive: Date,
     dtCreate: { type: Date, default: Date.now },
+    cost: { type: Number, required: true, default: 0 },
     value: { type: Number, required: true, default: 0 }
 });
 

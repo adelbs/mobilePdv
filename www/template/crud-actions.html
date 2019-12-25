@@ -1,0 +1,16 @@
+<div>
+    <button type="button" class="btn btn-secondary" @click="cancel" v-if="$route.params.id != '0'">
+        Voltar
+    </button>
+    <slot v-if="!currentItem.notFound"></slot>
+    <button type="button" class="btn btn-danger" @click="removeFunction"
+        v-if="$route.params.id != '0' && $route.params.id != '-1' && !currentItem.notFound">
+        Excluir
+    </button>
+    <button type="submit" class="btn btn-primary" v-if="$route.params.id != '0' && !currentItem.notFound">
+        Salvar
+    </button>
+    <a :href="'#/' + componentName + '/-1'" class="btn btn-primary" v-if="$route.params.id == '0'">
+        {{labelNew}}
+    </a>
+</div>

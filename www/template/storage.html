@@ -6,9 +6,9 @@
 
     <div class="container pb-4 row">
         <label for="filter" class="col-2 text-right">Filtro:</label>
-        <input id="filter" type="text" class="col-4 form-control form-control-sm" v-model="filterStr">
+        <input id="filter" type="text" class="col-4 form-control form-control-sm" v-model="filterFields.filterStr">
         <label for="categoryFilter" class="col-2 text-right">Categoria:</label>
-        <select id="categoryFilter" class="col-4 form-control form-control-sm" v-model="categoryFilter">
+        <select id="categoryFilter" class="col-4 form-control form-control-sm" v-model="filterFields.categoryFilter">
             <option value="">Todos</option>
             <option v-for="category in categories" :value="category.codCategory">{{ category.name }}</option>
         </select>
@@ -24,121 +24,161 @@
                             <th scope="col">Valor</th>
                             <th scope="col" class="text-center">Qtd. Estoque</th>
                             <th scope="col" class="text-center">Qtd. Expositor</th>
+                            <th scope="col" class="text-center">Ações</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="item in productList.filter(filter)">
+                        <tr v-for="item in productList.filter(filter).filter(pagination)">
                             <th scope="col" style="cursor: default;">{{item.codProduct}}</th>
-                            <th scope="col" style="cursor: default;">{{item.name}}</th>
-                            <th scope="col" style="cursor: default;">{{item.value}}</th>
+                            <th scope="col" style="cursor: default;">
+                                <a :href="'#/product/'+ item._id">{{item.name}}</a>
+                            </th>
+                            <th scope="col" style="cursor: default;">{{strCurrency(item.value, true)}}</th>
                             <th scope="col" class="text-center" style="cursor: default;">
                                 {{item.storage.length}}
-                                <button type="button" class="btn btn-sm btn-outline-secondary"
-                                    @click="openMoveModal(item, 'SHELF')">&gt;</button>
                             </th>
                             <th scope="col" class="text-center" style="cursor: default;">
-                                <button type="button" class="btn btn-sm btn-outline-secondary"
-                                    @click="openMoveModal(item, 'STORAGE')">&lt;</button>
                                 {{item.shelf.length}}
+                            </th>
+                            <th scope="col" class="text-center" style="cursor: default;">
+                                <div class="btn-group">
+                                    <button type="button" class="btn btn-sm btn-outline-secondary"
+                                        title="Mover itens para o estoque" @click="openMoveModal(item, 'STORAGE')"
+                                        :disabled="item.shelf.length == 0">
+                                        &lt;</button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary"
+                                        title="Mover itens para o expositor" @click="openMoveModal(item, 'SHELF')"
+                                        :disabled="item.storage.length == 0">&gt;</button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary"
+                                        title="Adicionar itens novos" @click="openAddItemModal(item)">+</button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary"
+                                        title="Registrar perda" @click="openCancelItemsModal(item)"
+                                        :disabled="item.storage.length == 0 && item.shelf.length == 0">X</button>
+                                </div>
+                            </th>
+                        </tr>
+                        <tr v-if="productList.filter(filter).length == 0">
+                            <th colspan="6" class="text-center" style="cursor: default;">
+                                Nenhum produto encontrado
                             </th>
                         </tr>
                     </tbody>
                 </table>
-            </div>
-        </div>
-    </div>
 
-    <div class="modal fade" id="moveItemsStorageModal" tabindex="-1" role="dialog"
-        aria-labelledby="moveItemsStorageModalTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
-        <div class="modal-dialog modal-dialog-scrollable" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="moveItemsStorageModalTitle">
-                        {{itemMove.name}}
-                    </h5>
-                </div>
-                <div class="modal-body">
-                    <div class="row mb-2">
-                        <div class="col-sm-2"></div>
-                        <select class="col form-control form-control-sm" v-model="itemsMoveTo">
-                            <option value="SHELF">Mover do Estoque para o Expositor</option>
-                            <option value="STORAGE">Mover do Expositor para o Estoque</option>
-                        </select>
-                        <div class="col-sm-2"></div>
+                <div class="text-right pt-3">
+                    <span>
+                        Total: {{strCurrency(totalValue(), true)}} ({{totalProducts()}} produtos, {{totalItems()}} itens)&nbsp;&nbsp;
+                    </span>
+                    <div class="btn-group mr-2">
+                        <button type="button" v-for="page of totalPages" class="btn btn-outline-secondary"
+                            :class="{'active': (page == currentPage)}" @click="gotoPage(page)">{{page}}</button>
                     </div>
-                    <div class="row">
-                        <label class="col text-right" for="qtdItensMove">Quantos itens deseja mover:</label>
-                        <input id="qtdItensMove" type="text" class="form-control form-control-sm col-sm-3"
-                            v-model="itemsMove">
-                        <div class="col-sm-2"></div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary"
-                        onclick="$('#moveItemsStorageModal').modal('hide')">Cancelar</button>
-                    <button type="button" class="btn btn-primary" @click="moveItems()">Mover</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="modal fade" id="printModal" tabindex="-1" role="dialog" aria-labelledby="printModalTitle"
-        aria-hidden="true" data-keyboard="false" data-backdrop="static">
-        <div class="modal-dialog modal-dialog-scrollable" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="printModalTitle">
-                        Imprimir
-                    </h5>
-                </div>
-                <div class="modal-body">
-                    <div class="row mb-2">
-                        <div class="col-sm-2"></div>
-                        <select class="col form-control form-control-sm" v-model="printOptions.itemsFrom">
-                            <option value="shelf">Imprimir apenas itens do expositor</option>
-                            <option value="storage">Imprimir apenas itens do estoque</option>
-                            <option value="both">Imprimir todos os itens disponíveis</option>
-                        </select>
-                        <div class="col-sm-2"></div>
-                    </div>
-                    <div class="row mb-2">
-                        <div class="col-sm-2"></div>
-                        <select class="col form-control form-control-sm" v-model="printOptions.howMany">
-                            <option value="all">Um código de barras para cada item disponível</option>
-                            <option value="one">Apenas um código de barras para cada produto</option>
-                        </select>
-                        <div class="col-sm-2"></div>
-                    </div>
-                    <div class="row mb-2">
-                        <div class="col-sm-2"></div>
-                        <select class="col form-control form-control-sm" v-model="printOptions.printSpace">
-                            <option value="1">Espaçamento pequeno</option>
-                            <option value="2">Espaçamento médio</option>
-                            <option value="3">Espaçamento grande</option>
-                        </select>
-                        <div class="col-sm-2"></div>
-                    </div>
-                    <div class="row">
-                        <div class="col-sm-2"></div>
-                        <select class="col form-control form-control-sm" v-model="printOptions.border">
-                            <option value="0">Sem borda</option>
-                            <option value="1">Com borda</option>
-                        </select>
-                        <div class="col-sm-2"></div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary"
-                        onclick="$('#printModal').modal('hide')">Cancelar</button>
-                    <button type="button" class="btn btn-primary" @click="print">Imprimir</button>
-                </div>
-            </div>
+    <modal id="addItemsModal" title="Adicionar Itens no Estoque" :actions="addItemsModalActions" ref="addItemsModal">
+        <div class="row">
+            <label class="col text-right" for="qtdItensAdd">Quantos itens deseja adicionar:</label>
+            <input id="qtdItensAdd" type="text" class="form-control form-control-sm col-sm-3"
+                v-model="addItemsModal.qtdItemAdd">
+            <div class="col-sm-2"></div>
         </div>
-    </div>
+    </modal>
+
+    <modal id="moveItemsModal" :title="moveItemsModal.itemMove.name" :actions="moveItemsModalActions"
+        ref="moveItemsModal">
+        <div class="row mb-2">
+            <div class="col-sm-2"></div>
+            <select class="col form-control form-control-sm" v-model="moveItemsModal.itemsMoveTo">
+                <option value="SHELF">Mover do Estoque para o Expositor</option>
+                <option value="STORAGE">Mover do Expositor para o Estoque</option>
+            </select>
+            <div class="col-sm-2"></div>
+        </div>
+        <div class="row">
+            <label class="col text-right" for="qtdItensMove">Quantos itens deseja mover:</label>
+            <input id="qtdItensMove" type="text" class="form-control form-control-sm col-sm-3"
+                v-model="moveItemsModal.itemsMove">
+            <div class="col-sm-2"></div>
+        </div>
+    </modal>
+
+    <modal id="cancelItemsModal" title="Registrar Perda" :actions="cancelItemsModalActions" ref="cancelItemsModal"
+        fluid="true">
+        <div class="row mb-2">
+            <label class="col-4 text-right" for="itemsCancelFrom">Registrar perda:</label>
+            <select id="itemsCancelFrom" class="col form-control form-control-sm"
+                v-model="cancelItemsModal.itemsCancelFrom">
+                <option value="storage">Registrar perdas de itens do Estoque</option>
+                <option value="shelf">Registrar perdas de itens do Expositor</option>
+            </select>
+            <div class="col-sm"></div>
+        </div>
+        <div class="row mb-2">
+            <label class="col-4 text-right" for="qtdItemCancel">Quantos itens deseja registrar:</label>
+            <input id="qtdItemCancel" type="text" class="form-control form-control-sm col-sm-3"
+                v-model="cancelItemsModal.qtdItemCancel">
+            <div class="col-sm"></div>
+        </div>
+        <div class="row mb-2">
+            <label class="col-4 text-right" for="cancelObs">Comentários:</label>
+            <textarea id="cancelObs" rows="5" class="form-control form-control-sm col-sm-7"
+                v-model="cancelItemsModal.cancelObs"></textarea>
+            <div class="col-sm"></div>
+        </div>
+        <div class="row">
+            <div class="col text-center font-weight-bold">Atenção: esta ação não poderá ser desfeita!</div>
+        </div>
+    </modal>
+
+    <modal id="printModal" title="Imprimir" :actions="printModalActions" ref="printModal">
+        <div class="row mb-2">
+            <div class="col-sm-2"></div>
+            <select class="col form-control form-control-sm" v-model="printOptions.itemsFrom">
+                <option value="shelf">Imprimir apenas itens do expositor</option>
+                <option value="storage">Imprimir apenas itens do estoque</option>
+                <option value="both">Imprimir todos os itens disponíveis</option>
+            </select>
+            <div class="col-sm-2"></div>
+        </div>
+        <div class="row mb-2">
+            <div class="col-sm-2"></div>
+            <select class="col form-control form-control-sm" v-model="printOptions.howMany">
+                <option value="all">Um código de barras para cada item disponível</option>
+                <option value="one">Apenas um código de barras para cada produto</option>
+            </select>
+            <div class="col-sm-2"></div>
+        </div>
+        <div class="row mb-2">
+            <div class="col-sm-2"></div>
+            <select class="col form-control form-control-sm" v-model="printOptions.printSpace">
+                <option value="1">Espaçamento pequeno</option>
+                <option value="2">Espaçamento médio</option>
+                <option value="3">Espaçamento grande</option>
+            </select>
+            <div class="col-sm-2"></div>
+        </div>
+        <div class="row">
+            <div class="col-sm-2"></div>
+            <select class="col form-control form-control-sm" v-model="printOptions.border">
+                <option value="0">Sem borda</option>
+                <option value="1">Com borda</option>
+            </select>
+            <div class="col-sm-2"></div>
+        </div>
+    </modal>
 
     <div class="container-fluid fixed-bottom pb-3 text-right">
-        <button type="button" class="btn btn-info" @click="$('#printModal').modal()">
-            Imprimir
+        <button type="button" class="btn btn-info" @click="$refs.printModal.show()">
+            Relação de Produtos
+        </button>
+        <button type="button" class="btn btn-info" @click="$refs.printModal.show()">
+            Códigos de Barra
+        </button>
+        <button type="button" class="btn btn-primary" @click="window.open(`#/product/-1`, '_self');">
+            Novo Produto
         </button>
     </div>
 </div>

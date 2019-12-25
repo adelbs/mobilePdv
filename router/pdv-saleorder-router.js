@@ -46,12 +46,18 @@ router.get('/:id', async (req, res) => {
     try {
         const order = await Salesorder.findOne({ _id: req.params.id }).select('-__v');
         let orderObj = order.toJSON();
+        let product;
         let customerList = [];
 
         if (orderObj.codCustomer) customerList = await Customer.find({ codCustomer: orderObj.codCustomer });
         
         if (customerList.length > 0) orderObj.customer = customerList[0];
-        else orderObj.customer = {};
+        else orderObj.customer = { };
+
+        for (let i = 0; i < orderObj.productItemList.length; i++) {
+            product = await Product.findOne({ codProduct: orderObj.productItemList[i].codProduct }).select('_id');
+            if (product) orderObj.productItemList[i]._idProduct = product._id;
+        }
 
         res.send(orderObj);
     }
@@ -96,8 +102,6 @@ router.put('/', async (req, res) => {
         let productItem;
         let order = await Salesorder.findOne({ _id: req.body._id }).select('-__v');
         let bodyObj = req.body;
-
-        console.log(bodyObj);
 
         //Ajustando o objeto a ser salvo
         delete bodyObj._id;
@@ -172,6 +176,26 @@ router.post('/closeOrder', async (req, res) => {
     }
 });
 
+router.post('/cancelOrder', async (req, res) => {
+    try {
+        let order = await Salesorder.findOne({ _id: req.body._id }).select('-__v');
+
+        //Retornando itens para o estoque
+        await Productitem.updateMany(
+            { codSalesorder: order.codOrder },
+            { place: 'STORAGE' });
+
+        order.status = 'RETURNED';
+        order.obs = req.body.obs;
+        order = await order.save();
+        res.send(order);
+    }
+    catch (err) {
+        log.error(`Error!`, err, req);
+        res.status(400).send(err);
+    }
+});
+
 router.post('/productItem/filter', async (req, res) => {
     try {
         const products = await Product.find(req.body).select('-__v');
@@ -180,7 +204,10 @@ router.post('/productItem/filter', async (req, res) => {
 
         for (let i = 0; i < products.length; i++) {
             item = products[i].toJSON();
-            item.productItems = await Productitem.find({ codProduct: products[i].codProduct, place: 'SHELF' });
+            item.productItems = await Productitem.find({ 
+                codProduct: products[i].codProduct, 
+                $or: [{place: 'SHELF' }, {place: 'STORAGE'}],
+            });
             if (item.productItems.length > 0) prdList.push(item);
         }
 

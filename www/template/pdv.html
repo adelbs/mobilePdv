@@ -1,174 +1,120 @@
 <div>
     <form id="orderForm">
-        <div class="modal fade" id="itemModal" tabindex="-1" role="dialog" aria-labelledby="itemModalTitle"
-            aria-hidden="true" data-backdrop="static">
-            <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="itemModalTitle">
-                            Adicionar Item
-                        </h5>
-                    </div>
-                    <div class="modal-body">
-                        <div class="form-group row">
-                            <label for="codProductFilter" class="col-1">Cód.</label>
-                            <input id="codProductFilter" type="text" class="form-control form-control-sm col-2"
-                                v-model="auxFields.itemFilter.cod" v-on:keydown.enter="filterItems($event)">
-                            <!-- <label for="nameProductFilter" class="col-2">Nome Prod.</label>
-                                <input id="nameProductFilter" type="text" class="form-control form-control-sm col-4"
-                                    placeholder="Produto" v-model="auxFields.itemFilter.name" v-on:keyup.enter="filterItems()"> -->
-                            <button type="button" class="btn btn-sm btn-info col-2 ml-2"
-                                @click="filterItems">Pesquisar</button>
-                        </div>
-                        <hr>
-                        <p class="h6">Produtos Disponíveis:</p>
-                        <table class="table table-sm">
-                            <thead>
-                                <tr>
-                                    <th scope="col">Código</th>
-                                    <th scope="col">Produto</th>
-                                    <th scope="col">Qtd. Disp.</th>
-                                    <th scope="col">Valor</th>
-                                    <th scope="col">Adicionar</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr v-for="item in itemFilter">
-                                    <th style="cursor: default;">{{ item.codProduct }}</th>
-                                    <th style="cursor: default;">{{ item.name }}</th>
-                                    <th style="cursor: default;">{{ item.productItems.length }}</th>
-                                    <th style="cursor: default;">{{ strCurrency(item.value, true) }}</th>
-                                    <th width="20" style="cursor: default;">
-                                        <div class="input-group">
-                                            <input type="number" class="form-control form-control-sm itemQtdAdd"
-                                                v-model="auxFields.itemQtdAdd"
-                                                v-on:keydown.enter="addItem(item, $event)">
-                                            <div class="input-group-append">
-                                                <button type="button" class="btn btn-sm btn-secondary"
-                                                    v-on:click="addItem(item)">+</button>
-                                            </div>
-                                        </div>
-                                    </th>
-                                </tr>
-                                <tr v-if="itemFilter.length == 0">
-                                    <th colspan="5" style="cursor: default;" class="text-center">
-                                        Utilize o filtro acima para encontrar os produtos.
-                                        Caso não esteja encontrando, certifique-se de que o produto que está
-                                        buscando já
-                                        não está reservado em algum outro pedido.
-                                    </th>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary"
-                            onclick="$('#itemModal').modal('hide');">Cancelar</button>
-                    </div>
+
+        <modal id="addItemModal" title="Adicionar Item" :actions="addItemModalActions" ref="addItemModal" fluid="true">
+            <div class="form-group row">
+                <label for="codProductFilter" class="col-1">Cód.</label>
+                <input id="codProductFilter" type="text" class="form-control form-control-sm col-2 codProductFilter"
+                    v-model="auxFields.itemFilter.cod" v-on:keydown.enter="filterItems($event)">
+                <button type="button" class="btn btn-sm btn-info col-2 ml-2" @click="filterItems">Pesquisar</button>
+            </div>
+            <hr>
+            <p class="h6">Produtos Disponíveis:</p>
+
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th scope="col">Código</th>
+                        <th scope="col">Produto</th>
+                        <th scope="col">Qtd. Disp.</th>
+                        <th scope="col">Valor</th>
+                        <th scope="col">Adicionar</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="item in itemFilter">
+                        <th style="cursor: default;">{{ item.codProduct }}</th>
+                        <th style="cursor: default;">{{ item.name }}</th>
+                        <th style="cursor: default;">{{ item.productItems.length }}</th>
+                        <th style="cursor: default;">{{ strCurrency(item.value, true) }}</th>
+                        <th width="20" style="cursor: default;">
+                            <div class="input-group">
+                                <input type="number" class="form-control form-control-sm itemQtdAdd"
+                                    v-model="auxFields.itemQtdAdd" v-on:keydown.enter="addItem(item, $event)">
+                                <div class="input-group-append">
+                                    <button type="button" class="btn btn-sm btn-secondary"
+                                        v-on:click="addItem(item)">+</button>
+                                </div>
+                            </div>
+                        </th>
+                    </tr>
+                    <tr v-if="itemFilter.length == 0">
+                        <th colspan="5" style="cursor: default;" class="text-center">
+                            Utilize o filtro acima para encontrar os produtos.
+                            Caso não esteja encontrando, certifique-se de que o produto que está buscando já
+                            não está reservado em algum outro pedido.
+                        </th>
+                    </tr>
+                </tbody>
+            </table>
+        </modal>
+
+        <modal id="paymentModal" title="Adicionar Pagamento" :actions="paymentModalActions" ref="paymentModal">
+            <div class="form-group">
+                <label for="tpPayment">Tipo</label>
+                <select id="tpPayment" class="form-control cmbTypePayment" v-model="auxFields.payment.tpPayment">
+                    <option value="CASH">Dinheiro</option>
+                    <option value="CREDIT">Cartão de Crédito</option>
+                    <option value="DEBIT">Cartão de Débito</option>
+                    <option value="CHECK">Cheque</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="paymentValue">Valor</label>
+                <input id="paymentValue" type="text" class="form-control valuePayment"
+                    v-model.lazy="auxFields.payment.value" v-money="money" v-on:keydown.enter="addPayment($event)">
+            </div>
+        </modal>
+
+        <modal id="customerModal" title="Cliente" :actions="customerModalActions" ref="customerModal" fluid="true">
+            <div class="row">
+                <div class="form-group col">
+                    <label for="customerPhone">Telefone</label>
+                    <input type="text" id="customerPhone" class="form-control form-control-sm"
+                        v-model="auxFields.customerFilter.phone" v-on:keydown.enter="filterCustomer($event)">
+                </div>
+                <div class="form-group col">
+                    <label for="customerEmail">Email</label>
+                    <input type="text" id="customerEmail" class="form-control form-control-sm"
+                        v-model="auxFields.customerFilter.email" v-on:keydown.enter="filterCustomer($event)">
+                </div>
+                <div class="col-sm-2 align-text-bottom" style="margin-top: 33px;">
+                    <button type="button" class="btn btn-sm btn-primary" @click="filterCustomer">Pesquisar</button>
                 </div>
             </div>
-        </div>
-
-        <div class="modal fade" id="paymentModal" tabindex="-1" role="dialog" aria-labelledby="paymentModalTitle"
-            aria-hidden="true" data-backdrop="static">
-            <div class="modal-dialog modal-dialog-scrollable" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="paymentModalTitle">
-                            Adicionar Pagamento
-                        </h5>
-                    </div>
-                    <div class="modal-body">
-                        <div class="form-group">
-                            <label for="tpPayment">Tipo</label>
-                            <select id="tpPayment" class="form-control cmbTypePayment"
-                                v-model="auxFields.payment.tpPayment">
-                                <option value="CASH">Dinheiro</option>
-                                <option value="CREDIT">Cartão de Crédito</option>
-                                <option value="DEBIT">Cartão de Débito</option>
-                                <option value="CHECK">Cheque</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="paymentValue">Valor</label>
-                            <input id="paymentValue" type="text" class="form-control valuePayment"
-                                v-model.lazy="auxFields.payment.value" v-money="money"
-                                v-on:keydown.enter="addPayment($event)">
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary"
-                            onclick="$('#paymentModal').modal('hide');">Cancelar</button>
-                        <button type="button" class="btn btn-primary" v-on:click="addPayment()">Adicionar</button>
-                    </div>
+            <div class="row p-2">
+                <div class="col">
+                    <list-table :items="customerList" :class="['text-left', 'table-hover']"
+                        :columns="customerListColumns" :click="addCustomer"
+                        msgNoRecords="Nenhum cliente encontrado. Utilize o filtro acima para encontrar os clientes.">
+                    </list-table>
                 </div>
             </div>
-        </div>
+        </modal>
 
-        <div class="modal fade" id="customerModal" tabindex="-1" role="dialog" aria-labelledby="customerModalTitle"
-            aria-hidden="true" data-backdrop="static">
-            <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="customerModalTitle">
-                            Cliente
-                        </h5>
-                    </div>
-                    <div class="modal-body">
-                        <div class="row">
-                            <div class="form-group col">
-                                <label for="customerPhone">Telefone</label>
-                                <input type="text" id="customerPhone" class="form-control form-control-sm"
-                                    v-model="auxFields.customerFilter.phone"
-                                    v-on:keydown.enter="filterCustomer($event)">
-                            </div>
-                            <div class="form-group col">
-                                <label for="customerEmail">Email</label>
-                                <input type="text" id="customerEmail" class="form-control form-control-sm"
-                                    v-model="auxFields.customerFilter.email"
-                                    v-on:keydown.enter="filterCustomer($event)">
-                            </div>
-                            <div class="col-sm-2 align-text-bottom" style="margin-top: 33px;">
-                                <button type="button" class="btn btn-sm btn-primary"
-                                    @click="filterCustomer">Pesquisar</button>
-                            </div>
-                        </div>
-                        <div class="row p-2">
-                            <div class="col">
-                                <table class="table table-hover table-sm text-left">
-                                    <thead>
-                                        <tr>
-                                            <th scope="col">Nome</th>
-                                            <th scope="col">Email</th>
-                                            <th scope="col">Telefone</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr v-for="customer in customerList" v-on:click="addCustomer(customer)">
-                                            <th>{{ customer.name }}</th>
-                                            <th>{{ customer.email }}</th>
-                                            <th>{{ customer.phone }}</th>
-                                        </tr>
-                                        <tr v-if="customerList.length == 0">
-                                            <th colspan="3" style="cursor: default;" class="text-center">
-                                                Nenhum cliente encontrado. Utilize o filtro acima para encontrar os
-                                                clientes.
-                                            </th>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary"
-                            onclick="$('#customerModal').modal('hide');">Cancelar</button>
-                    </div>
-                </div>
+        <modal id="newCustomerModal" title="Novo Cliente" :actions="newCustomerModalActions" ref="newCustomerModal">
+            <crud-form :fields="newCustomerFields" :item="selectedOrder.customer"></crud-form>
+        </modal>
+
+        <modal id="finishModal" title="Fechar Pedido" :actions="finishModalActions" ref="finishModal">
+            <div class="row p-3">
+                Tem certeza que deseja fechar esse pedido?<br>Essa ação não poderá ser desfeita!
             </div>
-        </div>
+            <div class="row p-3 text-danger" v-if="selectedOrder.discount > 0">
+                Atenção: Será aplicado um desconto de {{ strCurrency(selectedOrder.discount, true) }}
+            </div>
+            <div class="row">
+                <label for="salesPerson" class="col-3">Vendedor: </label>
+                <select id="salesPerson" class="col form-control form-control-sm" v-model="selectedOrder.codUser">
+                    <option value="">-- nenhum vendedor --</option>
+                    <option v-for="user in userList" v-bind:value="user.codUser">{{ user.name }}
+                    </option>
+                </select>
+                <div class="col-3"></div>
+            </div>
+        </modal>
 
-        <div class="container text-center" v-if="!selectedOrder.codOrder">
+        <div class="container text-center" v-if="$route.params.id == '0'">
             <div class="row">
                 <div class="col">
                     <img src="../img/logo.png">
@@ -180,26 +126,9 @@
                     <p class="h5 font-weight-normal text-left">
                         Pedidos Abertos:
                     </p>
-                    <table class="table table-hover table-sm text-left">
-                        <thead>
-                            <tr>
-                                <th scope="col">Código</th>
-                                <th scope="col">Data</th>
-                                <th scope="col">Cliente</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="(order, index) in orderList" v-on:click="openOrder(order._id)">
-                                <th>{{ order.codOrder }}</th>
-                                <th>{{ strDate(order.dtCreate) }}</th>
-                                <th>{{ order.customer.name }}</th>
-                            </tr>
-                            <tr v-if="orderList.length == 0">
-                                <th colspan="3" style="cursor: default;" class="text-center">Não há pedidos abertos
-                                </th>
-                            </tr>
-                        </tbody>
-                    </table>
+
+                    <list-table :items="orderList" :class="['text-left', 'table-hover']" :columns="orderListColumns"
+                        componentName="pdv" msgNoRecords="Não há pedidos abertos"></list-table>
                 </div>
                 <div class="col-2"></div>
             </div>
@@ -211,7 +140,7 @@
             </div>
         </div>
 
-        <div class="container-fluid text-center" v-if="selectedOrder.codOrder">
+        <div class="container-fluid text-center" v-if="$route.params.id != '0'">
             <div class="pt-5 row">
                 <div class="col-3 text-center"><img src="../img/logo.png"></div>
 
@@ -234,7 +163,8 @@
                         <button type="button" class="btn btn-sm btn-danger ml-2" v-if="selectedOrder.codCustomer"
                             v-on:click="addCustomer({codCustomer:''})">Limpar Cliente</button>
 
-                        <button type="button" class="btn btn-sm btn-secondary ml-2">Novo Cliente</button>
+                        <button type="button" class="btn btn-sm btn-secondary ml-2" v-if="!selectedOrder.codCustomer"
+                            @click="$refs.newCustomerModal.show()">Novo Cliente</button>
                     </div>
                 </div>
             </div>
@@ -245,37 +175,14 @@
                         Itens
                         <button type="button" class="btn btn-sm btn-secondary ml-2" @click="selectItem">+</button>
                     </p>
-                    <table class="table table-sm text-left">
-                        <thead>
-                            <tr>
-                                <th scope="col">#</th>
-                                <th scope="col">Item</th>
-                                <th scope="col">Valor</th>
-                                <th scope="col">Qtd</th>
-                                <th scope="col">Total</th>
-                                <th scope="col"></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="(item, index) in selectedOrder.productItemList">
-                                <th style="cursor: default;">{{ index + 1 }}</th>
-                                <th style="cursor: default;">{{ item.name }}</th>
-                                <th style="cursor: default;">{{ strCurrency(item.value, true) }}</th>
-                                <th style="cursor: default;">{{ item.codProductitem.length }}</th>
-                                <th style="cursor: default;">
-                                    {{ strCurrency(item.codProductitem.length * item.value, true) }}</th>
-                                <th v-on:click="removeItem(index)">x</th>
-                            </tr>
-                        </tbody>
-                        <tfoot>
-                            <tr>
-                                <th colspan="3"></th>
-                                <th>Total</th>
-                                <th>{{ strCurrency(selectedOrder.totalValue, true) }}</th>
-                                <th></th>
-                            </tr>
-                        </tfoot>
-                    </table>
+
+                    <list-table :items="selectedOrder.productItemList" :class="['text-left']"
+                        :columns="productItemListColumns"></list-table>
+
+                    <div class="text-right pr-5 pb-3">
+                        <span class="font-weight-bold">Total: </span>
+                        {{ strCurrency(selectedOrder.totalValue, true) }}
+                    </div>
                 </div>
 
                 <div class="col-lg p-3">
@@ -284,87 +191,30 @@
                         <button type="button" class="btn btn-sm btn-secondary ml-2" @click="selectPayment"
                             v-bind:disabled="selectedOrder.discount <= 0">+</button>
                     </p>
-                    <table class="table table-sm text-left">
-                        <thead>
-                            <tr>
-                                <th scope="col">#</th>
-                                <th scope="col">Pagamento</th>
-                                <th scope="col">Valor</th>
-                                <th scope="col"></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="(payment, index) in selectedOrder.paymentList">
-                                <th style="cursor: default;">{{ index + 1 }}</th>
-                                <th style="cursor: default;">{{ paymentType[payment.paymentType] }}</th>
-                                <th style="cursor: default;">{{ strCurrency(payment.value, true) }}</th>
-                                <th v-on:click="removePayment(index)">x</th>
-                            </tr>
-                        </tbody>
-                        <tfoot>
-                            <tr>
-                                <th></th>
-                                <th class="text-right">Restante</th>
-                                <th>{{ strCurrency(selectedOrder.discount, true) }}</th>
-                                <th></th>
-                            </tr>
-                        </tfoot>
-                    </table>
+
+                    <list-table :items="selectedOrder.paymentList" :class="['text-left']" :columns="paymentListColumns">
+                    </list-table>
+
+                    <div class="text-right pr-5 pb-3">
+                        <span class="font-weight-bold">Restante: </span>
+                        {{ strCurrency(selectedOrder.discount, true) }}
+                    </div>
+
                 </div>
             </div>
 
             <div class="row">
                 <div class="col text-center pb-3">
-                    <button type="button" v-on:click="closeOrder()" class="btn btn-secondary ml-2">Voltar</button>
+                    <a href="#/pdv/0" class="btn btn-secondary ml-2">Voltar</a>
                     <button type="button" v-on:click="cancelOrder()" class="btn btn-danger ml-2">
                         Cancelar Pedido
                     </button>
-                    <button type="button" v-on:click="finishOrder()" class="btn btn-primary ml-2">Fechar
-                        Pedido</button>
+                    <button type="button" v-on:click="finishOrder()" class="btn btn-primary ml-2">
+                        Fechar Pedido
+                    </button>
                 </div>
             </div>
         </div>
 
-        <div class="modal fade" id="alertModalPdv" tabindex="-1" role="dialog" aria-labelledby="alertModalPdvTitle"
-            aria-hidden="true" data-backdrop="static">
-            <div class="modal-dialog modal-dialog-scrollable" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="alertModalPdvTitle">
-                            {{alertMessage.title}}
-                        </h5>
-                    </div>
-                    <div class="modal-body">
-                        <div class="row p-3" v-html="alertMessage.message"></div>
-                        <div class="row p-3 text-danger"
-                            v-if="alertMessage.type == 'FINISH' && selectedOrder.discount > 0">
-                            Atenção: Será aplicado um desconto de {{ strCurrency(selectedOrder.discount, true) }}
-                        </div>
-                        <div class="row" v-if="alertMessage.type == 'FINISH'">
-                            <label for="salesPerson" class="col-3">Vendedor: </label>
-                            <select id="salesPerson" class="col form-control form-control-sm"
-                                v-model="selectedOrder.codUser">
-                                <option value="">-- nenhum vendedor --</option>
-                                <option v-for="user in userList" v-bind:value="user.codUser">{{ user.name }}
-                                </option>
-                            </select>
-                            <div class="col-3"></div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <div v-if="alertMessage.type == 'CONFIRM' || alertMessage.type == 'FINISH'">
-                            <button type="button" class="btn btn-secondary"
-                                @click="confirmAlertAction(false);$('#alertModalPdv').modal('hide');">Cancelar</button>
-                            <button type="button" class="btn btn-primary"
-                                @click="confirmAlertAction(true);$('#alertModalPdv').modal('hide');">Ok</button>
-                        </div>
-                        <div v-if="alertMessage.type == 'ALERT'">
-                            <button type="button" class="btn btn-primary"
-                                @click="confirmAlertAction(true);$('#alertModalPdv').modal('hide');">Ok</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
     </form>
 </div>

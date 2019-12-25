@@ -1,0 +1,34 @@
+<div>
+    <div class="form-group row" v-for="(field, index) in fields">
+        <label class="col-sm-3" :for="'field'+ index">{{field.label}}</label>
+
+        <template v-if="field.type == 'cod'">
+            <input :id="'field'+ index" type="text" class="form-control form-control-sm col-sm-3" readonly
+                v-model="item[field.name]">
+
+            <div class="col ml-3">
+                <input id="inactive" type="checkbox" class="form-check-input" v-model="item.isInactive">
+                <label class="form-check-label" for="inactive">Inativo</label>
+            </div>
+        </template>
+        <template v-else-if="field.type == 'currency'">
+            <input :id="'field'+ index" type="text" class="form-control form-control-sm maskCurrency"
+                placeholder="R$ 0,00" v-model.lazy="item[field.name]" v-money="money" :required="field.required"
+                :readonly="field.readonly" :class="field.class">
+        </template>
+        <template v-else-if="field.type == 'select'">
+            <select :id="'field'+ index" class="form-control form-control-sm" v-model="item[field.name]"
+                :required="field.required" :readonly="field.readonly" :class="field.class">
+                <option v-for="option in field.options.list" v-bind:value="option[field.options.id]">{{option[field.options.text]}}</option>
+            </select>
+        </template>
+        <template v-else-if="field.type == 'description'">
+            <textarea :id="'field'+ index" class="form-control form-control-sm" v-model="item[field.name]"
+                :required="field.required" :readonly="field.readonly" :class="field.class"></textarea>
+        </template>
+        <template v-else>
+            <input :id="'field'+ index" :type="field.type" class="form-control form-control-sm"
+                v-model="item[field.name]" :required="field.required" :readonly="field.readonly" :class="field.class">
+        </template>
+    </div>
+</div>
